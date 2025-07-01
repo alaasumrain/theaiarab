@@ -39,28 +39,31 @@ export default async function ProductsPage({
         <FadeIn>
           <ResourceCardGrid sortedData={data} filteredFeaturedData={null}>
             {search ?? category ?? label ?? tag ? (
-              <div className="md:mr-auto mx-auto flex flex-col items-center md:items-start">
+              <div className="md:ml-auto mx-auto flex flex-col items-center md:items-start">
                 <div className="flex mb-1 justify-center md:justify-start">
                   {search ? (
-                    <Search className="mr-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
+                    <Search className="ml-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
                   ) : null}
                   {category ? (
-                    <BoxIcon className="mr-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
+                    <BoxIcon className="ml-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
                   ) : null}
                   {label ? (
-                    <Hash className="mr-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
+                    <Hash className="ml-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
                   ) : null}
                   {tag ? (
-                    <TagIcon className="mr-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
+                    <TagIcon className="ml-1 bg-neutral-800 fill-yellow-300/30 stroke-yellow-500 size-6 p-1 rounded-full" />
                   ) : null}
-                  {search ? "search" : ""}
-                  {category ? "category" : ""}
-                  {label ? "label" : ""}
-                  {tag ? "tag" : ""}
+                  {search ? "البحث" : ""}
+                  {category ? "الفئة" : ""}
+                  {label ? "التصنيف" : ""}
+                  {tag ? "العلامة" : ""}
                 </div>
                 <GradientHeading size="xxl">
                   {search ?? category ?? label ?? tag}
                 </GradientHeading>
+                <div className="text-sm text-muted-foreground mt-2">
+                  {data.length} نتيجة
+                </div>
               </div>
             ) : null}
 

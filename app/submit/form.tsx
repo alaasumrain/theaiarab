@@ -37,16 +37,16 @@ import { schema } from "./schema"
 const p = () => new Promise((resolve) => setTimeout(() => resolve(""), 900))
 
 const categories = [
-  { label: "Boilerplate", value: "boilerplate" },
-  { label: "Analytics", value: "analytics" },
-  { label: "Marketing Tools", value: "marketing-tools" },
-  { label: "Developer Tools", value: "developer-tools" },
-  { label: "E-commerce", value: "e-commerce" },
-  { label: "Productivity", value: "productivity" },
-  { label: "Design Tools", value: "design-tools" },
-  { label: "Fintech", value: "fintech" },
-  { label: "Education", value: "education" },
-  { label: "SaaS", value: "saas" },
+  { label: "أدوات الكتابة", value: "أدوات الكتابة" },
+  { label: "إنشاء الصور", value: "إنشاء الصور" },
+  { label: "إنشاء الفيديو", value: "إنشاء الفيديو" },
+  { label: "أدوات البرمجة", value: "أدوات البرمجة" },
+  { label: "أدوات الصوت", value: "أدوات الصوت" },
+  { label: "أدوات الإنتاجية", value: "أدوات الإنتاجية" },
+  { label: "أدوات التصميم", value: "أدوات التصميم" },
+  { label: "أدوات البحث", value: "أدوات البحث" },
+  { label: "أدوات التعليم", value: "أدوات التعليم" },
+  { label: "أدوات الأعمال", value: "أدوات الأعمال" },
 ]
 
 export const SubmitTool = () => {
@@ -111,7 +111,7 @@ export const SubmitTool = () => {
         onSubmit={(evt) => {
           evt.preventDefault()
           setLoading(true)
-          toast.promise(p, { loading: "Submitting..." })
+          toast.promise(p, { loading: "جاري الإرسال..." })
           form.handleSubmit(async (data) => {
             let formData = new FormData(formRef.current!)
             const logoFile = form.getValues("images")
@@ -125,7 +125,7 @@ export const SubmitTool = () => {
         }}
       >
         <GradientHeading size="xs">
-          Let's start with your personal deets
+          لنبدأ بمعلوماتك الشخصية
         </GradientHeading>
         <div className="flex flex-wrap gap-1 md:gap-2">
           <FormField
@@ -133,9 +133,9 @@ export const SubmitTool = () => {
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full name</FormLabel>
+                <FormLabel>الاسم الكامل</FormLabel>
                 <FormControl>
-                  <Input placeholder="Full name" {...field} />
+                  <Input placeholder="الاسم الكامل" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -146,9 +146,9 @@ export const SubmitTool = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email address</FormLabel>
+                <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Email address" {...field} />
+                  <Input type="email" placeholder="البريد الإلكتروني" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,9 +159,9 @@ export const SubmitTool = () => {
             name="twitterHandle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Your Twitter handle</FormLabel>
+                <FormLabel>حساب تويتر/X</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your Twitter handle" {...field} />
+                  <Input placeholder="@username" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,9 +172,9 @@ export const SubmitTool = () => {
             name="productWebsite"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product website</FormLabel>
+                <FormLabel>موقع الأداة</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your product url" {...field} />
+                  <Input placeholder="رابط الأداة" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -183,16 +183,16 @@ export const SubmitTool = () => {
         </div>
 
         <GradientHeading size="xs">
-          Tell us more about your product
+          أخبرنا المزيد عن الأداة
         </GradientHeading>
         <FormField
           control={form.control}
           name="codename"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your product's name</FormLabel>
+              <FormLabel>اسم الأداة</FormLabel>
               <FormControl>
-                <Input placeholder="Your product's codename" {...field} />
+                <Input placeholder="اسم الأداة" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -203,9 +203,9 @@ export const SubmitTool = () => {
           name="punchline"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your product's punchline (&lt;10 words)</FormLabel>
+              <FormLabel>وصف مختصر للأداة (أقل من 10 كلمات)</FormLabel>
               <FormControl>
-                <Input placeholder="Your product's punchline" {...field} />
+                <Input placeholder="وصف مختصر للأداة" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -216,9 +216,9 @@ export const SubmitTool = () => {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>A short description here (~70 words)</FormLabel>
+              <FormLabel>وصف تفصيلي (حوالي 70 كلمة)</FormLabel>
               <FormControl>
-                <Input placeholder="A short description here" {...field} />
+                <Input placeholder="وصف تفصيلي للأداة" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -230,7 +230,7 @@ export const SubmitTool = () => {
           render={({ field }) => (
             <div className="space-y-6">
               <FormItem className="w-full">
-                <FormLabel>Logo file (.jpg or .png format, 128x128)</FormLabel>
+                <FormLabel>شعار الأداة (.jpg أو .png، 128x128)</FormLabel>
                 <FormControl>
                   <FileUploader
                     value={field.value}
@@ -247,7 +247,7 @@ export const SubmitTool = () => {
           name="categories"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Category</FormLabel>
+              <FormLabel>فئة الأداة</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -270,7 +270,7 @@ export const SubmitTool = () => {
                 </SelectContent>
               </Select>
               <FormDescription>
-                This is the categories that will be used in the dashboard.
+                اختر الفئة المناسبة للأداة
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -279,7 +279,7 @@ export const SubmitTool = () => {
 
         {isValid && (
           <StyledButton disabled={loading} type="submit">
-            Submit
+إرسال
           </StyledButton>
         )}
       </form>

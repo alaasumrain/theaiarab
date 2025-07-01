@@ -1,9 +1,14 @@
 import { Suspense } from "react"
+import Link from "next/link"
+import { Brain, Sparkles, BookOpen, Newspaper, ArrowLeft, ArrowRight, Zap, Star } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { FadeIn } from "@/components/cult/fade-in"
 import { DirectorySearch } from "@/components/directory-search"
 import { Hero } from "@/components/hero"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 import {
   EmptyFeaturedGrid,
@@ -14,13 +19,10 @@ import { NavSidebar } from "../components/nav"
 import { getCachedFilters } from "./actions/cached_actions"
 import { getProducts } from "./actions/product"
 
-// Select the resources you want to feature.. AD SPACE?
+// Featured AI tools to highlight
 const FEATURED_IDS = [
-  // "3b741434-1bdb-4903-91e9-a7fa154a8fdf",
-  // "f8a5db00-c80e-4fe4-80a7-af9d79a03690",
-  // "ad4b9d2e-6461-4eed-afbf-86aa284000cc",
-  "",
-] // Replace 'id1', 'id2', 'id3' with actual IDs you want to feature
+  // Add your featured tool IDs here
+]
 
 async function Page({ searchParams }: { searchParams: { search?: string } }) {
   let data = await getProducts(searchParams.search)
@@ -28,6 +30,16 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
   const filteredFeaturedData = data.filter((d: any) =>
     FEATURED_IDS.includes(d.id)
   )
+  
+  // Get popular tools (high view count)
+  const popularTools = data
+    .sort((a: any, b: any) => b.view_count - a.view_count)
+    .slice(0, 6)
+  
+  // Get latest tools
+  const latestTools = data
+    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 4)
 
   return (
     <>
@@ -37,34 +49,151 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
         tags={filters.tags}
       />
 
-      <div className="max-w-full px-2 md:pl-4 md:pr-0 pt-2">
+      <div className="max-w-full px-2 md:pr-4 md:pl-0 pt-2 md:mr-[12rem]">
         <FadeIn>
-          <ResourceCardGrid
-            sortedData={data}
-            filteredFeaturedData={filteredFeaturedData}
-          >
-            <div className="grid grid-cols-1  xl:grid-cols-6 lg:gap-16 pb-8 pt-8 relative">
-              <div className="col-span-1 md:col-span-2 z-10">
-                <Hero>
-                  <DirectorySearch />
-                </Hero>
-              </div>
-
-              <div className="col-span-1 md:col-span-4 mt-6 md:mt-0">
-                {filteredFeaturedData.length >= 1 ? (
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <div className=" relative">
-                      <FeaturedGrid featuredData={filteredFeaturedData} />
-                    </div>
-                  </Suspense>
-                ) : (
-                  <div className="relative">
-                    <EmptyFeaturedGrid />
+          {/* Hero Section */}
+          <div className="pb-8 pt-8">
+            <Hero>
+              <DirectorySearch />
+            </Hero>
+          </div>
+          
+          {/* Three Main Sections */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 md:h-auto">
+            {/* AI Tools Section */}
+            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full">
+              <Link href="/tools">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Brain className="h-8 w-8 text-primary" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
-                )}
+                  <CardTitle className="text-2xl">أدوات الذكاء الاصطناعي</CardTitle>
+                  <CardDescription className="text-base">
+                    أكثر من 100 أداة ذكاء اصطناعي مع شروحات باللغة العربية
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary">شات جي بي تي</Badge>
+                    <Badge variant="secondary">ميدجورني</Badge>
+                    <Badge variant="secondary">كلود</Badge>
+                    <Badge variant="outline">+97 أخرى</Badge>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+            
+            {/* Learning Hub Section */}
+            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full">
+              <Link href="/tutorials">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <BookOpen className="h-8 w-8 text-blue-600" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-blue-600 transition-colors" />
+                  </div>
+                  <CardTitle className="text-2xl">مركز التعلم</CardTitle>
+                  <CardDescription className="text-base">
+                    دروس ودورات تعليمية شاملة للمبتدئين والمحترفين في الذكاء الاصطناعي
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-green-600" />
+                      <span>دليل المبتدئين الشامل</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-yellow-600" />
+                      <span>هندسة الأوامر المتقدمة</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-purple-600" />
+                      <span>حالات استخدام عملية</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+            
+            {/* News Section */}
+            <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full">
+              <Link href="/news">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Newspaper className="h-8 w-8 text-purple-600" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-purple-600 transition-colors" />
+                  </div>
+                  <CardTitle className="text-2xl">آخر الأخبار</CardTitle>
+                  <CardDescription className="text-base">
+                    تابع آخر تطورات وأخبار الذكاء الاصطناعي من جميع أنحاء العالم
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                      <span>إطلاق GPT-5 قريباً</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                      <span>تحديث جديد لـ Midjourney</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                      <span>Claude 3 يدعم العربية</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          </div>
+          
+          <Separator className="my-8" />
+          
+          {/* Popular Tools Section */}
+          <div id="featured" className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Star className="h-6 w-6 text-yellow-500" />
+                <h2 className="text-2xl font-bold">الأدوات الأكثر شعبية</h2>
               </div>
+              <Button variant="ghost" asChild>
+                <Link href="/tools?sort=popular">
+                  عرض الكل
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             </div>
-          </ResourceCardGrid>
+            
+            <div className="bg-white dark:bg-[#1E1E1E] rounded-[2rem] p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.1)_inset,0_0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_-0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_1px_2px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.4)]">
+              {popularTools.length > 0 ? (
+                <FeaturedGrid featuredData={popularTools} />
+              ) : (
+                <EmptyFeaturedGrid />
+              )}
+            </div>
+          </div>
+          
+          <Separator className="my-8" />
+          
+          {/* All Tools Section */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold">جميع الأدوات</h2>
+              </div>
+              <Badge variant="outline" className="text-base px-3 py-1">
+                {data.length} أداة
+              </Badge>
+            </div>
+            
+            <ResourceCardGrid
+              sortedData={data}
+              filteredFeaturedData={filteredFeaturedData}
+            />
+          </div>
         </FadeIn>
       </div>
     </>

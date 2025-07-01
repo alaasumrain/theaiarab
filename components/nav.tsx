@@ -73,9 +73,9 @@ export function NavSidebar({
       <aside
         className={cn(
           pathname.includes("admin")
-            ? "w-16 border-r border-black/10 dark:border-white/10"
-            : "w-42",
-          "fixed inset-y-0 left-0 z-10 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-background"
+            ? "w-16 border-l border-black/10 dark:border-white/10"
+            : "w-48",
+          "fixed inset-y-0 right-0 z-10 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-background"
         )}
       >
         <nav className="flex flex-col items-center gap-4 px-2 py-5">
@@ -112,16 +112,16 @@ export function NavSidebar({
               className="bg-gradient-to-t from-primary/70 to-primary/80 rounded-lg"
             >
               <div className="p-[1px] bg-background rounded-md">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>حسابي</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-primary" />
                 <DropdownMenuItem>
-                  <Link href="/admin">Admin</Link>
+                  <Link href="/admin">لوحة التحكم</Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="bg-primary" />
                 <DropdownMenuItem>
                   <Button className="w-full" onClick={handleLogout}>
-                    <LogOutIcon className="mr-1 size-4" /> Logout
+                    <LogOutIcon className="ml-1 size-4" /> تسجيل الخروج
                   </Button>
                 </DropdownMenuItem>
               </div>
@@ -151,8 +151,8 @@ export function NavSidebar({
               <LogoAnimationLink />
             </div>
             <SheetContent
-              side="left"
-              className="sm:max-w-[15rem] py-4 pl-1 border-r border-primary/10"
+              side="right"
+              className="sm:max-w-[15rem] py-4 pr-1 border-l border-primary/10"
             >
               <nav className="flex flex-col items-start gap-4 px-2 py-5">
                 {pathname.includes("admin") ? (
@@ -177,7 +177,7 @@ export function NavSidebar({
                           onClick={handleLinkClick}
                         >
                           <HomeIcon className="h-5 w-5" />
-                          Home
+                          الرئيسية
                         </Link>
                         <Link
                           href="/submit"
@@ -186,7 +186,7 @@ export function NavSidebar({
                           onClick={handleLinkClick}
                         >
                           <PlusIcon className="h-5 w-5" />
-                          Submit
+                          أضف أداة
                         </Link>
 
                         <Link
@@ -196,7 +196,7 @@ export function NavSidebar({
                           onClick={handleLinkClick}
                         >
                           <LogIn className="h-5 w-5" />
-                          Login
+                          تسجيل الدخول
                         </Link>
                       </div>
                     </ProductNav>
@@ -216,14 +216,14 @@ export function NavSidebar({
                       className="bg-gradient-to-t from-primary/70 to-primary/80 rounded-lg"
                     >
                       <div className="p-[1px] bg-background rounded-md">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuLabel>حسابي</DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-primary" />
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
-                        <DropdownMenuItem>Support</DropdownMenuItem>
+                        <DropdownMenuItem>الإعدادات</DropdownMenuItem>
+                        <DropdownMenuItem>الدعم</DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-primary" />
                         <DropdownMenuItem>
                           <Button className="w-full" onClick={handleLogout}>
-                            <LogOutIcon className="mr-1 size-4" /> Logout
+                            <LogOutIcon className="ml-1 size-4" /> تسجيل الخروج
                           </Button>
                         </DropdownMenuItem>
                       </div>
@@ -265,7 +265,7 @@ function ProductNav({
         {categories && categories?.length > 0 && (
           <div className="flex items-center gap-2 mt-6 text-muted-foreground">
             <BoxIcon className="size-5 stroke-yellow-400" />
-            <p className="text-sm md:hidden">Categories</p>
+            <p className="text-sm md:hidden">الفئات</p>
           </div>
         )}
         <ul className="mt-2 w-36 flex flex-col gap-2 items-start justify-center py-2">
@@ -296,7 +296,7 @@ function ProductNav({
         {tags && tags?.length > 0 && (
           <div className="flex items-center gap-2 mt-6 text-muted-foreground">
             <TagIcon className="size-5 stroke-pink-400" />
-            <p className="text-sm md:hidden">Tags</p>
+            <p className="text-sm md:hidden">العلامات</p>
           </div>
         )}
         <ul className="mt-2 md:w-36 flex flex-col gap-2 items-start justify-center py-2">
@@ -327,7 +327,7 @@ function ProductNav({
         {labels && labels?.length > 0 && (
           <div className="flex items-center gap-2 mt-6 text-muted-foreground">
             <Hash className="size-5 stroke-cyan-400" />
-            <p className="text-sm md:hidden">Labels</p>
+            <p className="text-sm md:hidden">التصنيفات</p>
           </div>
         )}
         <ul className="mt-2 w-36 flex flex-col gap-2 items-start justify-center py-2">

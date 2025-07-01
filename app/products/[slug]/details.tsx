@@ -42,14 +42,21 @@ interface Product {
   categories: string
 }
 
-export const ProductDetails = ({ product }: { product: Product }) => (
-  <div className={cn("py-4 relative flex flex-col h-full")}>
+export const ProductDetails = ({ 
+  product, 
+  searchParams 
+}: { 
+  product: Product
+  searchParams?: { from?: string; category?: string; tag?: string; label?: string }
+}) => {
+  return (
+    <div className={cn("py-4 relative flex flex-col h-full")}>
     <div className="w-full gap-8 py-6 relative items-center">
       <div className="grid grid-cols-6 md:grid-cols-12 gap-8 w-full">
         <div className="space-y-6 col-span-6 md:col-span-5 md:mt-12 z-10">
           <Breadcrumb>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Products</BreadcrumbLink>/
+              <BreadcrumbLink href="/">الأدوات</BreadcrumbLink>/
               <BreadcrumbLink href={`/products/${product.id}`}>
                 {product.codename.substring(0, 20)}
               </BreadcrumbLink>
@@ -69,12 +76,40 @@ export const ProductDetails = ({ product }: { product: Product }) => (
             </CardDescription>
           )}
 
-          <Link
-            href={`/products`}
-            className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
-          >
-            <ArrowLeft className="mr-2" /> Back to all products
-          </Link>
+          {(() => {
+            const from = searchParams?.from
+            
+            if (from === 'featured') {
+              return (
+                <Link
+                  href="/#featured"
+                  className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
+                >
+                  <ArrowLeft className="ml-2" /> العودة للأدوات المميزة
+                </Link>
+              )
+            }
+            
+            if (searchParams?.category) {
+              return (
+                <Link
+                  href={`/products?category=${searchParams.category}`}
+                  className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
+                >
+                  <ArrowLeft className="ml-2" /> العودة لفئة {searchParams.category}
+                </Link>
+              )
+            }
+            
+            return (
+              <Link
+                href={`/products`}
+                className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
+              >
+                <ArrowLeft className="ml-2" /> العودة لجميع الأدوات
+              </Link>
+            )
+          })()}
         </div>
 
         <div
@@ -119,7 +154,7 @@ export const ProductDetails = ({ product }: { product: Product }) => (
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                <span className="font-semibold">Check out site</span>
+                <span className="font-semibold">زيارة الموقع</span>
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
@@ -127,12 +162,41 @@ export const ProductDetails = ({ product }: { product: Product }) => (
         </div>
       </div>
     </div>
-    <Link
-      href={`/`}
-      className="py-4 md:hidden items-center text-2xl font-semibold text-yellow-500  z-10 w-full flex"
-    >
-      <ArrowLeft className="mr-2" /> Back to all productss
-    </Link>
+    {(() => {
+      const from = searchParams?.from
+      
+      if (from === 'featured') {
+        return (
+          <Link
+            href="/#featured"
+            className="py-4 md:hidden items-center text-2xl font-semibold text-yellow-500  z-10 w-full flex"
+          >
+            <ArrowLeft className="ml-2" /> العودة للأدوات المميزة
+          </Link>
+        )
+      }
+      
+      if (searchParams?.category) {
+        return (
+          <Link
+            href={`/products?category=${searchParams.category}`}
+            className="py-4 md:hidden items-center text-2xl font-semibold text-yellow-500  z-10 w-full flex"
+          >
+            <ArrowLeft className="ml-2" /> العودة لفئة {searchParams.category}
+          </Link>
+        )
+      }
+      
+      return (
+        <Link
+          href={`/`}
+          className="py-4 md:hidden items-center text-2xl font-semibold text-yellow-500  z-10 w-full flex"
+        >
+          <ArrowLeft className="ml-2" /> العودة لجميع الأدوات
+        </Link>
+      )
+    })()}
     <div className="absolute top-36 md:top-0 left-[-10%] right-0 h-[400px] w-[300px]  md:h-[500px] md:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,235,59,.15),rgba(255,255,255,0))]"></div>
   </div>
-)
+  )
+}

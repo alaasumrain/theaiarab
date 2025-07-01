@@ -33,14 +33,14 @@ export function DirectorySearch() {
   }
 
   return (
-    <div className="relative max-w-[90%] md:min-w-[4rem] w-full md:max-w-[42ch] md:mr-auto ">
+    <div className="relative max-w-[90%] md:min-w-[4rem] w-full md:max-w-[42ch] md:ml-auto ">
       <InputButton
         hasIcon
         id="search"
         className={cn("relative pr-10 pl-12 shadow-sm md:py-5 w-full")}
         tabIndex={0}
         onChange={handleInputChange}
-        placeholder="Search all resources"
+        placeholder="ابحث في جميع الأدوات"
         spellCheck={false}
         enterKeyHint="go"
       >

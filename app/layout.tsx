@@ -18,31 +18,31 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Design x Engineering Directory - Discover Top Web Dev Tools",
+  title: "العربي للذكاء الاصطناعي - مركزك الشامل لأدوات الذكاء الاصطناعي",
   description:
-    "Explore a curated directory of free web development tools for designers and engineers. Find resources for JavaScript, Tailwind CSS, and more!",
+    "اكتشف أفضل أدوات الذكاء الاصطناعي مع شروحات باللغة العربية. ChatGPT، Midjourney، وأكثر. دروس، أخبار، ومصادر تعليمية للمجتمع العربي.",
   keywords:
-    "Design, Engineering, Web Development, JavaScript, Tailwind CSS, Supabase, Free Tools, Design Engineering",
+    "ذكاء اصطناعي، أدوات AI، ChatGPT عربي، Midjourney، تعلم الذكاء الاصطناعي، دروس عربية، AI tools Arabic",
   structuredData: {
     "@context": "http://schema.org",
     "@type": "WebSite",
-    name: "Design x Engineering Directory",
-    url: "https://www.nextjs.design/",
+    name: "العربي للذكاء الاصطناعي",
+    url: "https://www.theaiarab.com/",
     description:
-      "A free directory of awesome web development tools for design and engineering professionals.",
+      "المنصة العربية الشاملة لأدوات وموارد الذكاء الاصطناعي للمجتمع العربي.",
   },
   socialMediaTags: {
-    "og:title": "Design x Engineering Directory - Discover Top Web Dev Tools",
+    "og:title": "العربي للذكاء الاصطناعي - مركزك الشامل لأدوات AI",
     "og:description":
-      "Explore a curated directory of free web development tools for designers and engineers. Find resources for JavaScript, Tailwind CSS, and more!",
+      "اكتشف أفضل أدوات الذكاء الاصطناعي مع شروحات باللغة العربية. دروس، أخبار، ومصادر تعليمية.",
     "twitter:card": "summary_large_image",
   },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${fontSans.variable} font-sans  `}>
-      <body>
+    <html lang="ar" dir="rtl" className={`${fontSans.variable} font-sans  `}>
+      <body className="arabic-font">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

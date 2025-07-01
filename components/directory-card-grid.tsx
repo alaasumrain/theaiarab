@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 
-import { ResourceCard } from "./directory-product-card"
+import { AIToolCard } from "./ai-tool-card"
 
 interface Product {
   id: string
@@ -64,7 +64,7 @@ export const ResourceCardGrid: React.FC<SEOCardGridProps> = ({
 }) => {
   const pathname = usePathname()
   return (
-    <div className="flex flex-col md:items-start gap-4 overflow-hidden pb-4 md:mx-4 mx-0 md:ml-[12rem] lg:ml-[12rem] relative">
+    <div className="flex flex-col md:items-start gap-4 overflow-hidden pb-4 md:mx-4 mx-0 md:mr-[12rem] lg:mr-[12rem] relative">
       <div
         className={cn(
           " px-4",
@@ -113,7 +113,7 @@ const TailwindMasonryGrid: React.FC<TailwindMasonryGridProps> = ({
           {filteredData &&
             filteredData.map((data, index) => (
               <div key={`${index}-${data.id}`} className="">
-                <ResourceCard data={data} order={index} />
+                <AIToolCard data={data} order={index} />
               </div>
             ))}
         </div>
@@ -129,7 +129,7 @@ export const FeaturedGrid: React.FC<{ featuredData: Product[] }> = ({
     <div className="w-full mx-auto max-w-7xl bg-neutral-50/40 dark:bg-neutral-950/40 border border-dashed border-black/10 py-3 px-3 rounded-2xl">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {featuredData.map((data, index) => (
-          <ResourceCard trim={true} data={data} order={index} />
+          <AIToolCard trim={true} data={data} order={index} context="featured" />
         ))}
       </div>
     </div>
@@ -182,7 +182,7 @@ export const EmptyFeaturedGrid = () => {
             className="md:py-0 "
           >
             {/* @ts-expect-error */}
-            <ResourceCard trim={true} data={data} order={index} />
+            <AIToolCard trim={true} data={data} order={index} />
           </Link>
         ))}
       </div>
