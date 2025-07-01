@@ -20,7 +20,7 @@ import { getCachedFilters } from "./actions/cached_actions"
 import { getProducts } from "./actions/product"
 
 // Featured AI tools to highlight
-const FEATURED_IDS = [
+const FEATURED_IDS: string[] = [
   // Add your featured tool IDs here
 ]
 
@@ -161,7 +161,7 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
               <Button variant="ghost" asChild>
                 <Link href="/tools?sort=popular">
                   عرض الكل
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  <ArrowRight className="h-4 w-4 mr-2" />
                 </Link>
               </Button>
             </div>

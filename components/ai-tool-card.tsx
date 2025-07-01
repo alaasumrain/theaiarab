@@ -130,7 +130,7 @@ export const AIToolCard: React.FC<{
                   </div>
                   
                   {data.is_free !== undefined && (
-                    <Badge variant={data.is_free ? "default" : "secondary"} className="mr-2">
+                    <Badge variant={data.is_free ? "default" : "secondary"} className="ml-2">
                       {data.is_free ? "مجاني" : "مدفوع"}
                     </Badge>
                   )}
@@ -183,7 +183,7 @@ export const AIToolCard: React.FC<{
                   whileHover={{ scale: 1.05 }}
                   className="text-xs text-primary font-medium"
                 >
-                  استكشف ←
+                  استكشف →
                 </motion.span>
               </div>
             </MinimalCardFooter>

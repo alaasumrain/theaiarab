@@ -78,7 +78,7 @@ export default function NewsPage() {
                   {article.category}
                 </Badge>
                 <div className="flex items-center text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4 ml-1" />
+                  <Clock className="h-4 w-4 mr-1" />
                   {article.readTime}
                 </div>
               </div>
@@ -100,7 +100,7 @@ export default function NewsPage() {
                 <Button variant="outline" size="sm" asChild>
                   <Link href={article.url} target="_blank" rel="noopener noreferrer">
                     اقرأ المزيد
-                    <ExternalLink className="h-4 w-4 mr-2" />
+                    <ExternalLink className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
               </div>

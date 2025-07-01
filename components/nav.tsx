@@ -121,7 +121,7 @@ export function NavSidebar({
                 <DropdownMenuSeparator className="bg-primary" />
                 <DropdownMenuItem>
                   <Button className="w-full" onClick={handleLogout}>
-                    <LogOutIcon className="ml-1 size-4" /> تسجيل الخروج
+                    <LogOutIcon className="mr-1 size-4" /> تسجيل الخروج
                   </Button>
                 </DropdownMenuItem>
               </div>
@@ -223,7 +223,7 @@ export function NavSidebar({
                         <DropdownMenuSeparator className="bg-primary" />
                         <DropdownMenuItem>
                           <Button className="w-full" onClick={handleLogout}>
-                            <LogOutIcon className="ml-1 size-4" /> تسجيل الخروج
+                            <LogOutIcon className="mr-1 size-4" /> تسجيل الخروج
                           </Button>
                         </DropdownMenuItem>
                       </div>
@@ -268,7 +268,7 @@ function ProductNav({
             <p className="text-sm md:hidden">الفئات</p>
           </div>
         )}
-        <ul className="mt-2 w-36 flex flex-col gap-2 items-start justify-center py-2">
+        <ul className="mt-2 w-40 flex flex-col gap-2 items-start justify-center py-2">
           {categories?.map((category: string, index: number) => (
             <li key={`category-${index}-${category}`}>
               <Link
@@ -299,7 +299,7 @@ function ProductNav({
             <p className="text-sm md:hidden">العلامات</p>
           </div>
         )}
-        <ul className="mt-2 md:w-36 flex flex-col gap-2 items-start justify-center py-2">
+        <ul className="mt-2 md:w-40 flex flex-col gap-2 items-start justify-center py-2">
           {tags?.map((tag: string, index: number) => (
             <li key={`tag-${index}-${tag}`}>
               <Link
@@ -330,7 +330,7 @@ function ProductNav({
             <p className="text-sm md:hidden">التصنيفات</p>
           </div>
         )}
-        <ul className="mt-2 w-36 flex flex-col gap-2 items-start justify-center py-2">
+        <ul className="mt-2 w-40 flex flex-col gap-2 items-start justify-center py-2">
           {labels?.map((label: string, index: number) => (
             <li key={`label-${index}-${label}`}>
               <Link

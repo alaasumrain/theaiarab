@@ -7,7 +7,7 @@ import { Button } from "./ui/button"
 
 export function Hero({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center md:items-start md:px-2 justify-center gap-2 md:ml-12">
+    <div className="flex flex-col items-center md:items-start md:px-2 justify-center gap-2">
       <div className="flex items-center gap-3">
         <div className="flex items-center">
           <Brain className="h-10 w-10 text-primary animate-pulse" />
@@ -19,7 +19,7 @@ export function Hero({ children }: { children?: React.ReactNode }) {
       
       <div className="flex flex-col items-center md:items-start md:mt-4 gap-3">
         <Badge className="text-base px-4 py-1" variant="default">
-          <Sparkles className="h-4 w-4 ml-2" />
+          <Sparkles className="h-4 w-4 mr-2" />
           مركزك الشامل لأدوات الذكاء الاصطناعي
         </Badge>
         

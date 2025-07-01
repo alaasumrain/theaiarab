@@ -46,7 +46,7 @@ export const StyledButton: React.FC<ButtonProps> = ({
       style={{ backgroundClip: "padding-box" }}
       {...props}
     >
-      <span className="mr-2 scale-95 group-hover:scale-100">←</span>
+      <span className="ml-2 scale-95 group-hover:scale-100">→</span>
       {children}
     </button>
   )

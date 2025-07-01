@@ -85,7 +85,7 @@ export const ProductDetails = ({
                   href="/#featured"
                   className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
                 >
-                  <ArrowLeft className="ml-2" /> العودة للأدوات المميزة
+                  <ArrowLeft className="mr-2" /> العودة للأدوات المميزة
                 </Link>
               )
             }
@@ -96,7 +96,7 @@ export const ProductDetails = ({
                   href={`/products?category=${searchParams.category}`}
                   className="py-4 md:flex items-center text-2xl font-semibold text-yellow-500  z-10 hidden"
                 >
-                  <ArrowLeft className="ml-2" /> العودة لفئة {searchParams.category}
+                  <ArrowLeft className="mr-2" /> العودة لفئة {searchParams.category}
                 </Link>
               )
             }
@@ -155,7 +155,7 @@ export const ProductDetails = ({
                 rel="noreferrer noopener"
               >
                 <span className="font-semibold">زيارة الموقع</span>
-                <ExternalLink className="ml-2 h-4 w-4" />
+                <ExternalLink className="mr-2 h-4 w-4" />
               </a>
             </Button>
           )}
