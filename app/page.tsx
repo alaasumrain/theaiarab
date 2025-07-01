@@ -21,7 +21,12 @@ import { getProducts } from "./actions/product"
 
 // Featured AI tools to highlight
 const FEATURED_IDS: string[] = [
-  // Add your featured tool IDs here
+  '550e8400-e29b-41d4-a716-446655440001', // ChatGPT
+  '550e8400-e29b-41d4-a716-446655440004', // Midjourney
+  '550e8400-e29b-41d4-a716-446655440002', // Claude
+  '550e8400-e29b-41d4-a716-446655440014', // Perplexity
+  '550e8400-e29b-41d4-a716-446655440007', // GitHub Copilot
+  '550e8400-e29b-41d4-a716-446655440005', // DALL-E 3
 ]
 
 async function Page({ searchParams }: { searchParams: { search?: string } }) {
