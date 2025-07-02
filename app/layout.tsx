@@ -4,6 +4,7 @@ import localFont from "next/font/local"
 
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { TopNavbar } from "@/components/top-navbar"
 
 import { ThemeProvider } from "./providers"
 
@@ -50,8 +51,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <main className="bg-[#FAFAFA] dark:bg-background  text-foreground flex flex-col justify-center items-center w-full pt-13">
-              <div className=" w-full ">{children}</div>
+            <TopNavbar />
+            <main className="bg-[#FAFAFA] dark:bg-background text-foreground flex flex-col justify-center items-center w-full">
+              <div className="w-full">{children}</div>
             </main>
           </TooltipProvider>
           <Toaster richColors />

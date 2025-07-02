@@ -43,35 +43,40 @@ export const getProducts = cache(
     label?: string,
     tag?: string
   ) => {
-    const db = createClient()
-    let query = db.from("products").select("*")
+    try {
+      const db = createClient()
+      let query = db.from("products").select("*")
 
-    if (searchTerm) {
-      query = query.or(
-        `codename.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,punchline.ilike.%${searchTerm}%`
-      )
-    }
+      if (searchTerm) {
+        query = query.or(
+          `codename.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,punchline.ilike.%${searchTerm}%`
+        )
+      }
 
-    if (category) {
-      query = query.eq("categories", category)
-    }
+      if (category) {
+        query = query.eq("categories", category)
+      }
 
-    if (label) {
-      query = query.contains("labels", [label])
-    }
+      if (label) {
+        query = query.contains("labels", [label])
+      }
 
-    if (tag) {
-      query = query.contains("tags", [tag])
-    }
+      if (tag) {
+        query = query.contains("tags", [tag])
+      }
 
-    const { data, error } = await query
+      const { data, error } = await query
 
-    if (error) {
-      console.error("Error searching resources:", error)
+      if (error) {
+        console.error("Error searching resources:", error)
+        return []
+      }
+
+      return data || []
+    } catch (error) {
+      console.error("Failed to fetch products:", error)
       return []
     }
-
-    return data
   }
 )
 

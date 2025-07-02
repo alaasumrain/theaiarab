@@ -64,7 +64,7 @@ export const ResourceCardGrid: React.FC<SEOCardGridProps> = ({
 }) => {
   const pathname = usePathname()
   return (
-    <div className="flex flex-col md:items-start gap-4 overflow-hidden pb-4 md:mx-4 mx-0 md:mr-[12rem] lg:mr-[12rem] relative">
+    <div className="flex flex-col md:items-start gap-4 overflow-hidden pb-4 md:mx-4 mx-0 relative">
       <div
         className={cn(
           " px-4",

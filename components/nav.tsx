@@ -75,7 +75,7 @@ export function NavSidebar({
           pathname.includes("admin")
             ? "w-16 border-l border-black/10 dark:border-white/10"
             : "w-48",
-          "fixed inset-y-0 right-0 z-10 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-background"
+          "fixed top-16 bottom-0 right-0 z-10 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-background"
         )}
       >
         <nav className="flex flex-col items-center gap-4 px-2 py-5">

@@ -19,6 +19,9 @@ import { NavSidebar } from "../components/nav"
 import { getCachedFilters } from "./actions/cached_actions"
 import { getProducts } from "./actions/product"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // Featured AI tools to highlight
 const FEATURED_IDS: string[] = [
   '550e8400-e29b-41d4-a716-446655440001', // ChatGPT
@@ -30,20 +33,33 @@ const FEATURED_IDS: string[] = [
 ]
 
 async function Page({ searchParams }: { searchParams: { search?: string } }) {
-  let data = await getProducts(searchParams.search)
-  let filters = await getCachedFilters()
+  let data: any[] = []
+  let filters = { categories: [], labels: [], tags: [] }
+  
+  try {
+    data = await getProducts(searchParams.search)
+    filters = await getCachedFilters()
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+    // Continue with empty data for build process
+  }
+  
   const filteredFeaturedData = data.filter((d: any) =>
     FEATURED_IDS.includes(d.id)
   )
   
   // Get popular tools (high view count)
   const popularTools = data
-    .sort((a: any, b: any) => b.view_count - a.view_count)
+    .sort((a: any, b: any) => (b.view_count || 0) - (a.view_count || 0))
     .slice(0, 6)
   
   // Get latest tools
   const latestTools = data
-    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort((a: any, b: any) => {
+      const dateA = new Date(b.created_at || 0).getTime()
+      const dateB = new Date(a.created_at || 0).getTime()
+      return dateA - dateB
+    })
     .slice(0, 4)
 
   return (
@@ -54,7 +70,7 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
         tags={filters.tags}
       />
 
-      <div className="max-w-full px-2 md:pr-4 md:pl-0 pt-2 md:mr-[12rem]">
+      <div className="max-w-6xl px-2 md:pr-4 md:pl-0 pt-6 md:mr-[12rem]">
         <FadeIn>
           {/* Hero Section */}
           <div className="pb-8 pt-8">

@@ -27,45 +27,50 @@ const client = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 async function getFilters(): Promise<FilterData> {
-  const { data: categoriesData, error: categoriesError } = await client
-    .from("categories")
-    .select("name")
+  try {
+    const { data: productsData, error } = await client
+      .from("products")
+      .select("categories, labels, tags")
 
-  const { data: labelsData, error: labelsError } = await client
-    .from("labels")
-    .select("name")
+    if (error) {
+      console.error("Error fetching filters:", error)
+      return { categories: [], labels: [], tags: [] }
+    }
 
-  const { data: tagsData, error: tagsError } = await client
-    .from("tags")
-    .select("name")
+    const unique = (array: string[]) => [...new Set(array)]
 
-  if (categoriesError || labelsError || tagsError) {
-    console.error(
-      "Error fetching filters:",
-      categoriesError,
-      labelsError,
-      tagsError
-    )
+    // Extract unique categories
+    const categories = productsData
+      ? unique(
+          productsData
+            .map((item: any) => item.categories)
+            .filter(Boolean)
+        )
+      : []
+
+    // Extract unique labels (flatten arrays)
+    const labels = productsData
+      ? unique(
+          productsData
+            .flatMap((item: any) => item.labels || [])
+            .filter(Boolean)
+        )
+      : []
+
+    // Extract unique tags (flatten arrays)
+    const tags = productsData
+      ? unique(
+          productsData
+            .flatMap((item: any) => item.tags || [])
+            .filter(Boolean)
+        )
+      : []
+
+    return { categories, labels, tags }
+  } catch (error) {
+    console.error("Failed to fetch filters:", error)
     return { categories: [], labels: [], tags: [] }
   }
-
-  const unique = (array: string[]) => [...new Set(array)]
-
-  const categories = categoriesData
-    ? unique(
-        categoriesData.map((item: CategoryData) => item.name).filter(Boolean)
-      )
-    : []
-
-  const labels = labelsData
-    ? unique(labelsData.map((item: LabelData) => item.name).filter(Boolean))
-    : []
-
-  const tags = tagsData
-    ? unique(tagsData.map((item: TagData) => item.name).filter(Boolean))
-    : []
-
-  return { categories, labels, tags }
 }
 
 export const getCachedFilters = unstable_cache(
