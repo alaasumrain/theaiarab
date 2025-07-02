@@ -24,18 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { approveProduct, rejectProduct, toggleFeatured, deleteProduct } from "./actions"
 
 interface Product {
@@ -49,22 +38,14 @@ interface Product {
 
 export function ProductActions({ product }: { product: Product }) {
   const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleApprove = async () => {
     setIsLoading(true)
     try {
       await approveProduct(product.id)
-      toast({
-        title: "تم اعتماد الأداة",
-        description: `تم اعتماد ${product.arabic_name || product.codename} بنجاح`,
-      })
+      toast.success(`تم اعتماد ${product.arabic_name || product.codename} بنجاح`)
     } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في اعتماد الأداة",
-        variant: "destructive",
-      })
+      toast.error("حدث خطأ في اعتماد الأداة")
     }
     setIsLoading(false)
   }
@@ -73,16 +54,9 @@ export function ProductActions({ product }: { product: Product }) {
     setIsLoading(true)
     try {
       await rejectProduct(product.id)
-      toast({
-        title: "تم رفض الأداة",
-        description: `تم رفض ${product.arabic_name || product.codename}`,
-      })
+      toast.success(`تم رفض ${product.arabic_name || product.codename}`)
     } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في رفض الأداة",
-        variant: "destructive",
-      })
+      toast.error("حدث خطأ في رفض الأداة")
     }
     setIsLoading(false)
   }
@@ -91,34 +65,24 @@ export function ProductActions({ product }: { product: Product }) {
     setIsLoading(true)
     try {
       await toggleFeatured(product.id, !product.featured)
-      toast({
-        title: product.featured ? "تم إزالة التمييز" : "تم تمييز الأداة",
-        description: `${product.arabic_name || product.codename} ${product.featured ? 'لم تعد مميزة' : 'أصبحت مميزة'}`,
-      })
+      toast.success(`${product.arabic_name || product.codename} ${product.featured ? 'لم تعد مميزة' : 'أصبحت مميزة'}`)
     } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في تغيير حالة التمييز",
-        variant: "destructive",
-      })
+      toast.error("حدث خطأ في تغيير حالة التمييز")
     }
     setIsLoading(false)
   }
 
   const handleDelete = async () => {
+    if (!window.confirm(`هل أنت متأكد من حذف "${product.arabic_name || product.codename}"؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
+      return
+    }
+    
     setIsLoading(true)
     try {
       await deleteProduct(product.id)
-      toast({
-        title: "تم حذف الأداة",
-        description: `تم حذف ${product.arabic_name || product.codename}`,
-      })
+      toast.success(`تم حذف ${product.arabic_name || product.codename}`)
     } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في حذف الأداة",
-        variant: "destructive",
-      })
+      toast.error("حدث خطأ في حذف الأداة")
     }
     setIsLoading(false)
   }
@@ -216,28 +180,10 @@ export function ProductActions({ product }: { product: Product }) {
           
           <DropdownMenuSeparator />
           
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                حذف
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-                <AlertDialogDescription>
-                  هذا الإجراء لا يمكن التراجع عنه. سيتم حذف الأداة "{product.arabic_name || product.codename}" نهائياً من النظام.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
-                  حذف
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DropdownMenuItem onClick={handleDelete} disabled={isLoading}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            حذف
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

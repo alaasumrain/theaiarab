@@ -3,7 +3,6 @@ import { ReactNode } from "react"
 import localFont from "next/font/local"
 
 import { Toaster } from "@/components/ui/sonner"
-import { Toaster as RadixToaster } from "@/components/ui/toaster"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { TopNavbar } from "@/components/top-navbar"
 
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </main>
           </TooltipProvider>
           <Toaster richColors />
-          <RadixToaster />
         </ThemeProvider>
       </body>
     </html>
