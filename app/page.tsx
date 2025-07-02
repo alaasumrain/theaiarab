@@ -34,7 +34,11 @@ const FEATURED_IDS: string[] = [
 
 async function Page({ searchParams }: { searchParams: { search?: string } }) {
   let data: any[] = []
-  let filters = { categories: [], labels: [], tags: [] }
+  let filters: { categories: string[]; labels: string[]; tags: string[] } = { 
+    categories: [], 
+    labels: [], 
+    tags: [] 
+  }
   
   try {
     data = await getProducts(searchParams.search)
