@@ -8,7 +8,8 @@ import {
   Home,
   Crown,
   Shield,
-  Activity
+  Activity,
+  Images
 } from "lucide-react"
 import Link from "next/link"
 
@@ -45,7 +46,7 @@ export default async function AdminLayout({
   // Check admin role
   const { data: userData } = await supabase
     .from('users')
-    .select('role, full_name, email')
+    .select('role, full_name')
     .eq('id', user.id)
     .single()
 
@@ -65,6 +66,12 @@ export default async function AdminLayout({
       href: "/admin/products",
       icon: Package,
       description: "مراجعة وإدارة أدوات الذكاء الاصطناعي"
+    },
+    {
+      name: "مكتبة الوسائط",
+      href: "/admin/media",
+      icon: Images,
+      description: "إدارة وتنظيم الصور والملفات"
     },
     {
       name: "إدارة المستخدمين",
@@ -111,7 +118,7 @@ export default async function AdminLayout({
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    {userData.full_name?.charAt(0) || userData.email?.charAt(0) || 'أ'}
+                    {userData.full_name?.charAt(0) || user.email?.charAt(0) || 'أ'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -123,7 +130,7 @@ export default async function AdminLayout({
                     {userData.full_name || 'مدير النظام'}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {userData.email}
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>

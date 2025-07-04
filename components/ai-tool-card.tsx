@@ -15,6 +15,7 @@ import MinimalCard, {
   MinimalCardTitle,
 } from "@/components/cult/minimal-card"
 import { incrementClickCount } from "@/app/actions/product"
+import { ProductLogo } from "@/components/product-logo"
 
 interface AITool {
   id: string
@@ -86,7 +87,7 @@ export const AIToolCard: React.FC<{
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative break-inside-avoid w-full"
+      className="group relative w-full h-full"
     >
       <Link
         href={`/products/${data.id}?from=${context}`}
@@ -94,49 +95,45 @@ export const AIToolCard: React.FC<{
         className=""
         onClick={handleClick}
       >
-        <div className="w-full">
+        <div className="w-full h-full">
           <MinimalCard
             className={cn(
-              "w-full transition-all duration-300 hover:shadow-lg",
+              "w-full h-full flex flex-col transition-all duration-150 hover:shadow-lg",
               optimisticResource.view_count > 350
-                ? "border-primary/50 bg-gradient-to-br from-primary/5 to-transparent"
+                ? "border-primary/20 bg-gradient-to-br from-primary/5 to-transparent"
                 : ""
             )}
           >
-            <div className="flex items-start gap-3">
-              {data.logo_src ? (
-                <MinimalCardImage 
-                  alt={data.arabic_name || data.codename} 
-                  src={data.logo_src} 
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Icon className="w-8 h-8 text-primary" />
-                </div>
-              )}
+            <div className="flex items-start gap-3 flex-1">
+              <ProductLogo 
+                logo_src={data.logo_src}
+                tool_type={data.tool_type}
+                codename={data.codename}
+                arabic_name={data.arabic_name}
+                size="md"
+              />
               
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <MinimalCardTitle className="text-lg font-bold mb-1">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <MinimalCardTitle className="text-base font-bold mb-1 line-clamp-2">
                       {data.arabic_name || data.codename}
                     </MinimalCardTitle>
                     {data.arabic_name && (
-                      <p className="text-sm text-muted-foreground mb-2">
+                      <p className="text-xs text-muted-foreground mb-2 truncate">
                         {data.codename}
                       </p>
                     )}
                   </div>
                   
                   {data.is_free !== undefined && (
-                    <Badge variant={data.is_free ? "default" : "secondary"} className="ml-2">
+                    <Badge variant={data.is_free ? "default" : "secondary"} className="text-xs flex-shrink-0">
                       {data.is_free ? "مجاني" : "مدفوع"}
                     </Badge>
                   )}
                 </div>
                 
-                <MinimalCardDescription className="text-sm leading-relaxed mb-3">
+                <MinimalCardDescription className="text-sm leading-relaxed mb-3 line-clamp-3">
                   {data.arabic_description || data.punchline}
                 </MinimalCardDescription>
                 
@@ -151,13 +148,13 @@ export const AIToolCard: React.FC<{
                   )}
                   
                   {data.categories && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-700 border-yellow-200">
                       {data.categories}
                     </Badge>
                   )}
                   
                   {data.language_support?.includes('Arabic') && (
-                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                    <Badge variant="outline" className="text-xs bg-cyan-50 text-cyan-700 border-cyan-200">
                       يدعم العربية
                     </Badge>
                   )}
@@ -166,8 +163,8 @@ export const AIToolCard: React.FC<{
             </div>
 
             <MinimalCardFooter>
-              <div className="flex items-center justify-between w-full mt-3">
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Eye className="w-3 h-3" />
                     <span>{optimisticResource.view_count || 0}</span>
@@ -183,7 +180,7 @@ export const AIToolCard: React.FC<{
                   whileHover={{ scale: 1.05 }}
                   className="text-xs text-primary font-medium"
                 >
-                  استكشف →
+                  استكشف ←
                 </motion.span>
               </div>
             </MinimalCardFooter>

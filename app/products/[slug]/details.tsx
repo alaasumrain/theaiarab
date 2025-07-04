@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { CardDescription, CardTitle } from "@/components/ui/card"
+import { ProductLogo } from "@/components/product-logo"
 
 interface Product {
   id: string
@@ -119,11 +120,16 @@ export const ProductDetails = ({
           )}
         >
           <div className="w-full p-1 md:p-3 rounded-[28px] md:rounded-[36px] bg-[#3d3d3d]">
-            <img
-              className="w-full h-full rounded-3xl object-cover"
-              src={product.logo_src}
-              alt={`${product.full_name} image`}
-            />
+            <div className="w-full aspect-square rounded-3xl overflow-hidden">
+              <ProductLogo 
+                logo_src={product.logo_src}
+                codename={product.codename}
+                arabic_name={(product as any).arabic_name}
+                tool_type={(product as any).tool_type}
+                className="w-full h-full rounded-none"
+                showFallbackIcon={true}
+              />
+            </div>
           </div>
           <CardDescription className="text-2xl tracking-tight leading-tight text-neutral-800 text-balance dark:text-neutral-400">
             {product.description}

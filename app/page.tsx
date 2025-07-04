@@ -16,6 +16,7 @@ import {
   ResourceCardGrid,
 } from "../components/directory-card-grid"
 import { NavSidebar } from "../components/nav"
+import { AdaptiveLayout } from "@/components/adaptive-layout"
 import { getCachedFilters } from "./actions/cached_actions"
 import { getProducts } from "./actions/product"
 
@@ -74,7 +75,7 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
         tags={filters.tags}
       />
 
-      <div className="max-w-6xl px-2 md:pr-4 md:pl-0 pt-6 md:mr-[12rem]">
+      <AdaptiveLayout className="py-6">
         <FadeIn>
           {/* Hero Section */}
           <div className="pb-8 pt-8">
@@ -220,7 +221,7 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
             />
           </div>
         </FadeIn>
-      </div>
+      </AdaptiveLayout>
     </>
   )
 }

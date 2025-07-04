@@ -14,6 +14,7 @@ import MinimalCard, {
   MinimalCardTitle,
 } from "@/components/cult/minimal-card"
 import { incrementClickCount } from "@/app/actions/product"
+import { ProductLogo } from "@/components/product-logo"
 
 export const getBasePath = (url: string) => {
   return new URL(url).hostname.replace("www.", "").split(".")[0]
@@ -96,9 +97,14 @@ export const ResourceCard: React.FC<{
               "w-full"
             )}
           >
-            {data.logo_src ? (
-              <MinimalCardImage alt={data.codename} src={data.logo_src} />
-            ) : null}
+            <div className="mb-3">
+              <ProductLogo 
+                logo_src={data.logo_src}
+                codename={data.codename}
+                size="lg"
+                showFallbackIcon={false}
+              />
+            </div>
 
             <MinimalCardTitle
               className={cn(

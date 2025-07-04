@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ProductActions } from "./product-actions"
+import { ProductLogo } from "@/components/product-logo"
 
 interface Product {
   id: string
@@ -96,13 +97,12 @@ function ProductRow({ product }: { product: Product }) {
     <TableRow>
       <TableCell className="font-medium">
         <div className="flex items-center gap-3">
-          {product.logo_src && (
-            <img 
-              src={product.logo_src} 
-              alt={product.arabic_name || product.codename}
-              className="w-8 h-8 rounded object-cover"
-            />
-          )}
+          <ProductLogo 
+            logo_src={product.logo_src}
+            codename={product.codename}
+            arabic_name={product.arabic_name}
+            size="sm"
+          />
           <div>
             <p className="font-medium">
               {product.arabic_name || product.codename}

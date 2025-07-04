@@ -8,6 +8,7 @@ import { GradientHeading } from "@/components/cult/gradient-heading"
 import { ResourceCardGrid } from "@/components/directory-card-grid"
 
 import { NavSidebar } from "../../components/nav"
+import { AdaptiveLayout } from "@/components/adaptive-layout"
 import { getCachedFilters } from "../actions/cached_actions"
 import { getProducts } from "../actions/product"
 
@@ -24,8 +25,20 @@ export default async function ProductsPage({
   }
 }): Promise<ReactElement> {
   const { search, category, label, tag } = searchParams
-  const data = await getProducts(search, category, label, tag)
-  let filters = await getCachedFilters()
+  
+  let data: any[] = []
+  let filters: { categories: string[]; labels: string[]; tags: string[] } = { 
+    categories: [], 
+    labels: [], 
+    tags: [] 
+  }
+  
+  try {
+    data = await getProducts(search, category, label, tag)
+    filters = await getCachedFilters()
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+  }
 
   return (
     <>
@@ -35,7 +48,7 @@ export default async function ProductsPage({
         tags={filters.tags}
       />
 
-      <div className=" max-w-full pt-4">
+      <AdaptiveLayout className="max-w-full pt-4">
         <FadeIn>
           <ResourceCardGrid sortedData={data} filteredFeaturedData={null}>
             {search ?? category ?? label ?? tag ? (
@@ -70,7 +83,7 @@ export default async function ProductsPage({
             {/* <Separator className="mb-12 ml-auto w-[85%] bg-black/5 h-[2px] animate-pulse rounded-l-full" /> */}
           </ResourceCardGrid>
         </FadeIn>
-      </div>
+      </AdaptiveLayout>
     </>
   )
 }

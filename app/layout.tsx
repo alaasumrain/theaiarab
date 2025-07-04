@@ -1,10 +1,13 @@
 import "./globals.css"
 import { ReactNode } from "react"
 import localFont from "next/font/local"
+import Script from "next/script"
 
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { TopNavbar } from "@/components/top-navbar"
+import { SidebarProvider } from "@/contexts/sidebar-context"
+import { GoogleAnalytics } from "@/components/analytics"
 
 import { ThemeProvider } from "./providers"
 
@@ -42,7 +45,10 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${fontSans.variable} font-sans  `}>
+    <html lang="ar" dir="rtl" className={`${fontSans.variable} font-sans`}>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className="arabic-font">
         <ThemeProvider
           attribute="class"
@@ -51,10 +57,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <TopNavbar />
-            <main className="bg-[#FAFAFA] dark:bg-background text-foreground flex flex-col justify-center items-center w-full">
-              <div className="w-full">{children}</div>
-            </main>
+            <SidebarProvider>
+              <TopNavbar />
+              <main className="bg-[#FAFAFA] dark:bg-background text-foreground w-full min-h-screen">
+                {children}
+              </main>
+            </SidebarProvider>
           </TooltipProvider>
           <Toaster richColors />
         </ThemeProvider>

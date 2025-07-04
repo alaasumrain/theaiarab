@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/db/supabase/client"
@@ -17,11 +17,13 @@ import {
   PlusIcon,
   TagIcon,
   UsersIcon,
+  Search,
 } from "lucide-react"
 
 import { cn, truncateString } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/contexts/sidebar-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +32,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
   Tooltip,
@@ -52,7 +56,28 @@ export function NavSidebar({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isSheetOpen, setSheetOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
+  
+  // Use sidebar context with fallback
+  let sidebarOpen = true
+  try {
+    const sidebar = useSidebar()
+    sidebarOpen = sidebar.isOpen
+  } catch (error) {
+    console.warn("Sidebar context not available in NavSidebar")
+  }
+
+  // Check user authentication status
+  useEffect(() => {
+    const checkUser = async () => {
+      const db = await createClient()
+      const { data: { user } } = await db.auth.getUser()
+      setUser(user)
+    }
+    checkUser()
+  }, [])
 
   const handleLogout = async () => {
     const db = await createClient()
@@ -60,12 +85,20 @@ export function NavSidebar({
     if (error) {
       console.error("Error logging out:", error.message)
     } else {
-      router.push("/login") // Redirect to login page after logout
+      router.push("/login")
     }
   }
 
   const handleLinkClick = () => {
     setSheetOpen(false)
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/tools?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery("")
+    }
   }
 
   return (
@@ -74,60 +107,80 @@ export function NavSidebar({
         className={cn(
           pathname.includes("admin")
             ? "w-16 border-l border-black/10 dark:border-white/10"
-            : "w-48",
-          "fixed top-16 bottom-0 right-0 z-10 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-background"
+            : sidebarOpen
+            ? "w-48"
+            : "w-0 border-l-0",
+          "fixed top-16 bottom-0 right-0 z-20 hidden sm:flex flex-col bg-[#FAFAFA] dark:bg-[#1E1E1E] border-l border-black/10 dark:border-white/10 transition-all duration-150 ease-in-out overflow-hidden"
         )}
       >
-        <nav className="flex flex-col items-center gap-4 px-2 py-5">
+        {sidebarOpen && (
+          <div className="border-b border-black/10 dark:border-white/10 p-2">
+            <div className="text-sm font-medium text-muted-foreground text-center">
+              التصفح والفلترة
+            </div>
+          </div>
+        )}
+        <nav className="flex-1 overflow-y-auto">
           {pathname.includes("admin") ? (
-            <>
+            <div className="flex flex-col items-center gap-4 px-2 py-5">
               <LogoAnimationLink />
               <AdminNav pathname={pathname} />
-            </>
+            </div>
           ) : (
             <ProductNav
               categories={categories}
               tags={tags}
               labels={labels}
               searchParams={searchParams}
+              isCollapsed={!sidebarOpen}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              handleSearch={handleSearch}
             />
           )}
         </nav>
 
-        <div
-          className={
-            pathname.includes("admin")
-              ? "flex flex-col gap-4 items-center py-5 mt-auto px-2 mx-2"
-              : "pl-3 flex flex-col justify-center gap-4 items-start pb-8"
-          }
-        >
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarFallback className="bg-gradient-to-r from-yellow-300 to-yellow-300" />
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="bg-gradient-to-t from-primary/70 to-primary/80 rounded-lg"
-            >
-              <div className="p-[1px] bg-background rounded-md">
-                <DropdownMenuLabel>حسابي</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-primary" />
-                <DropdownMenuItem>
-                  <Link href="/admin">لوحة التحكم</Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator className="bg-primary" />
-                <DropdownMenuItem>
-                  <Button className="w-full" onClick={handleLogout}>
-                    <LogOutIcon className="mr-1 size-4" /> تسجيل الخروج
-                  </Button>
-                </DropdownMenuItem>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <div className="">
+        <div className="p-4 border-t border-black/10 dark:border-white/10">
+          <div className="flex gap-2 items-center justify-between">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-gradient-to-r from-yellow-300 to-yellow-300 text-black text-xs">
+                      {user.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  side="top"
+                  className="mb-2"
+                >
+                  <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">لوحة التحكم</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOutIcon className="ml-2 h-4 w-4" />
+                    تسجيل الخروج
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-8 w-full justify-start"
+              >
+                <Link href="/login">
+                  <LogIn className="h-4 w-4" />
+                  <span className="mr-2">تسجيل الدخول</span>
+                </Link>
+              </Button>
+            )}
             <ModeToggle />
           </div>
         </div>
@@ -168,6 +221,9 @@ export function NavSidebar({
                       categories={categories}
                       handleLinkClick={handleLinkClick}
                       searchParams={searchParams}
+                      searchQuery={searchQuery}
+                      setSearchQuery={setSearchQuery}
+                      handleSearch={handleSearch}
                     >
                       <div className="my-4 space-y-3">
                         <Link
@@ -188,47 +244,43 @@ export function NavSidebar({
                           <PlusIcon className="h-5 w-5" />
                           أضف أداة
                         </Link>
-
-                        <Link
-                          href="/login"
-                          className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                          prefetch={false}
-                          onClick={handleLinkClick}
-                        >
-                          <LogIn className="h-5 w-5" />
-                          تسجيل الدخول
-                        </Link>
                       </div>
                     </ProductNav>
                   </>
                 )}
               </nav>
               <div className="flex flex-col items-start pl-4">
-                <nav className="mb-6   flex gap-4 ">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Avatar>
-                        <AvatarFallback className="bg-gradient-to-r from-yellow-300 to-yellow-300" />
-                      </Avatar>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-gradient-to-t from-primary/70 to-primary/80 rounded-lg"
-                    >
-                      <div className="p-[1px] bg-background rounded-md">
+                <nav className="mb-6 flex gap-4">
+                  {user ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-gradient-to-r from-yellow-300 to-yellow-300 text-black text-xs">
+                            {user.email?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
                         <DropdownMenuLabel>حسابي</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-primary" />
-                        <DropdownMenuItem>الإعدادات</DropdownMenuItem>
-                        <DropdownMenuItem>الدعم</DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-primary" />
-                        <DropdownMenuItem>
-                          <Button className="w-full" onClick={handleLogout}>
-                            <LogOutIcon className="mr-1 size-4" /> تسجيل الخروج
-                          </Button>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin">لوحة التحكم</Link>
                         </DropdownMenuItem>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogout}>
+                          <LogOutIcon className="ml-2 h-4 w-4" />
+                          تسجيل الخروج
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href="/login">
+                        <LogIn className="h-4 w-4 ml-2" />
+                        تسجيل الدخول
+                      </Link>
+                    </Button>
+                  )}
                   <ModeToggle />
                 </nav>
               </div>
@@ -247,6 +299,10 @@ type ProductNavProps = {
   handleLinkClick?: () => void
   searchParams: URLSearchParams
   children?: ReactNode
+  isCollapsed?: boolean
+  searchQuery?: string
+  setSearchQuery?: (query: string) => void
+  handleSearch?: (e: React.FormEvent) => void
 }
 
 function ProductNav({
@@ -256,104 +312,244 @@ function ProductNav({
   searchParams,
   handleLinkClick,
   children,
+  isCollapsed = false,
+  searchQuery = "",
+  setSearchQuery,
+  handleSearch,
 }: ProductNavProps) {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null)
+  const pathname = usePathname()
+
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-center p-2">
+        <LogoAnimationLink />
+        <div className="mt-4 space-y-2 w-full">
+          <TooltipProvider>
+            {/* Home */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/" className="flex justify-center">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <HomeIcon className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="left">الرئيسية</TooltipContent>
+            </Tooltip>
+            
+            {/* Submit Tool */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/submit" className="flex justify-center">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <PlusIcon className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="left">أضف أداة</TooltipContent>
+            </Tooltip>
+
+            <Separator className="my-2" />
+            
+            {/* Categories */}
+            {categories && categories.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 mx-auto"
+                    onClick={() => setExpandedSection(expandedSection === 'categories' ? null : 'categories')}
+                  >
+                    <BoxIcon className="h-4 w-4 stroke-yellow-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">الفئات</TooltipContent>
+              </Tooltip>
+            )}
+            
+            {/* Tags */}
+            {tags && tags.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 mx-auto"
+                    onClick={() => setExpandedSection(expandedSection === 'tags' ? null : 'tags')}
+                  >
+                    <TagIcon className="h-4 w-4 stroke-pink-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">العلامات</TooltipContent>
+              </Tooltip>
+            )}
+            
+            {/* Labels */}
+            {labels && labels.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 mx-auto"
+                    onClick={() => setExpandedSection(expandedSection === 'labels' ? null : 'labels')}
+                  >
+                    <Hash className="h-4 w-4 stroke-cyan-400" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="left">التصنيفات</TooltipContent>
+              </Tooltip>
+            )}
+          </TooltipProvider>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="">
+    <div className="p-2">
       <LogoAnimationLink />
       {children}
-      <ScrollArea className="h-[calc(100vh-320px)] md:h-[calc(100vh-200px)] flex flex-col gap-4 pl-2">
-        {categories && categories?.length > 0 && (
-          <div className="flex items-center gap-2 mt-6 text-muted-foreground">
-            <BoxIcon className="size-5 stroke-yellow-400" />
-            <p className="text-sm md:hidden">الفئات</p>
+      <ScrollArea className="h-[calc(100vh-280px)] flex flex-col gap-4 px-2">
+        {!children && (
+          <div className="space-y-2 mb-4">
+            <Link
+              href="/"
+              className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              onClick={handleLinkClick}
+            >
+              <HomeIcon className="h-4 w-4" />
+              <span>الرئيسية</span>
+            </Link>
+            <Link
+              href="/submit"
+              className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+              onClick={handleLinkClick}
+            >
+              <PlusIcon className="h-4 w-4" />
+              <span>أضف أداة</span>
+            </Link>
           </div>
         )}
-        <ul className="mt-2 w-40 flex flex-col gap-2 items-start justify-center py-2">
-          {categories?.map((category: string, index: number) => (
-            <li key={`category-${index}-${category}`}>
-              <Link
-                href={`/products?category=${category}`}
-                onClick={handleLinkClick}
-                className={cn(
-                  "flex items-start space-x-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 rounded-md px-2 py-0.5",
-                  "shadow-[0_0_0_1px_rgba(0,0,0,0.1)_inset,0_0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_-0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_1px_2px_rgba(0,0,0,0.1)]",
-                  "dark:shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.4)]",
-                  "dark:hover:shadow-[0_0_0_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.5)]",
-                  searchParams.get("category") === category
-                    ? "bg-yellow-400 text-black dark:text-black"
-                    : ""
-                )}
-                prefetch={false}
-              >
-                <span className="px-1">
-                  {category && truncateString(category, 12)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+
+        {/* Search Box */}
+        {handleSearch && setSearchQuery && (
+          <div className="mb-4 px-3">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="ابحث في الأدوات..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 text-sm pr-10 pl-3"
+              />
+            </form>
+          </div>
+        )}
+
+        {categories && categories?.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2 text-muted-foreground px-3">
+              <BoxIcon className="h-4 w-4 stroke-yellow-400" />
+              <p className="text-sm font-medium">الفئات</p>
+            </div>
+            <ul className="space-y-1">
+              {categories?.map((category: string, index: number) => (
+                <li key={`category-${index}-${category}`}>
+                  <Link
+                    href={
+                      pathname.includes("/tutorials") ? `/tutorials?category=${category}` :
+                      pathname.includes("/news") ? `/news?category=${category}` :
+                      `/products?category=${category}`
+                    }
+                    onClick={handleLinkClick}
+                    className={cn(
+                      "block text-xs px-2 py-1 rounded-md transition-colors leading-tight",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      "overflow-hidden text-ellipsis whitespace-nowrap",
+                      searchParams.get("category") === category
+                        ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                        : "text-muted-foreground"
+                    )}
+                    prefetch={false}
+                    title={category}
+                  >
+                    {category && truncateString(category, 16)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {tags && tags?.length > 0 && (
-          <div className="flex items-center gap-2 mt-6 text-muted-foreground">
-            <TagIcon className="size-5 stroke-pink-400" />
-            <p className="text-sm md:hidden">العلامات</p>
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2 text-muted-foreground px-3">
+              <TagIcon className="h-4 w-4 stroke-pink-400" />
+              <p className="text-sm font-medium">العلامات</p>
+            </div>
+            <ul className="space-y-1">
+              {tags?.map((tag: string, index: number) => (
+                <li key={`tag-${index}-${tag}`}>
+                  <Link
+                    href={`/products?tag=${tag}`}
+                    onClick={handleLinkClick}
+                    className={cn(
+                      "block text-xs px-2 py-1 rounded-md transition-colors leading-tight",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      "overflow-hidden text-ellipsis whitespace-nowrap",
+                      searchParams.get("tag") === tag
+                        ? "bg-pink-400 text-black hover:bg-pink-500"
+                        : "text-muted-foreground"
+                    )}
+                    prefetch={false}
+                    title={tag}
+                  >
+                    {tag && truncateString(tag, 16)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
-        <ul className="mt-2 md:w-40 flex flex-col gap-2 items-start justify-center py-2">
-          {tags?.map((tag: string, index: number) => (
-            <li key={`tag-${index}-${tag}`}>
-              <Link
-                href={`/products?tag=${tag}`}
-                onClick={handleLinkClick}
-                className={cn(
-                  "flex items-start space-x-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 rounded-md px-2 py-0.5",
-                  "shadow-[0_0_0_1px_rgba(0,0,0,0.1)_inset,0_0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_-0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_1px_2px_rgba(0,0,0,0.1)]",
-                  "dark:shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.4)]",
-                  "dark:hover:shadow-[0_0_0_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.5)]",
-                  searchParams.get("tag") === tag
-                    ? "bg-pink-400 text-black dark:text-black"
-                    : ""
-                )}
-                prefetch={false}
-              >
-                <span className="px-1 truncate">
-                  {tag && truncateString(tag, 12)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
 
         {labels && labels?.length > 0 && (
-          <div className="flex items-center gap-2 mt-6 text-muted-foreground">
-            <Hash className="size-5 stroke-cyan-400" />
-            <p className="text-sm md:hidden">التصنيفات</p>
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2 text-muted-foreground px-3">
+              <Hash className="h-4 w-4 stroke-cyan-400" />
+              <p className="text-sm font-medium">التصنيفات</p>
+            </div>
+            <ul className="space-y-1">
+              {labels?.map((label: string, index: number) => (
+                <li key={`label-${index}-${label}`}>
+                  <Link
+                    href={pathname.includes("/tutorials") ? `/tutorials?difficulty=${label}` : `/products?label=${label}`}
+                    onClick={handleLinkClick}
+                    className={cn(
+                      "block text-xs px-2 py-1 rounded-md transition-colors leading-tight",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      "overflow-hidden text-ellipsis whitespace-nowrap",
+                      pathname.includes("/tutorials") 
+                        ? searchParams.get("difficulty") === label
+                          ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                          : "text-muted-foreground"
+                        : searchParams.get("label") === label
+                        ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                        : "text-muted-foreground"
+                    )}
+                    prefetch={false}
+                    title={label}
+                  >
+                    {label && truncateString(label, 16)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
-        <ul className="mt-2 w-40 flex flex-col gap-2 items-start justify-center py-2">
-          {labels?.map((label: string, index: number) => (
-            <li key={`label-${index}-${label}`}>
-              <Link
-                href={`/products?label=${label}`}
-                onClick={handleLinkClick}
-                className={cn(
-                  "flex items-start space-x-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 rounded-md px-2 py-0.5",
-                  "shadow-[0_0_0_1px_rgba(0,0,0,0.1)_inset,0_0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_-0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_1px_2px_rgba(0,0,0,0.1)]",
-                  "dark:shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.4)]",
-                  "dark:hover:shadow-[0_0_0_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.5)]",
-                  searchParams.get("label") === label
-                    ? "bg-cyan-400 text-black dark:text-black"
-                    : ""
-                )}
-                prefetch={false}
-              >
-                <span className="text-ellipsis overflow-hidden">
-                  {label && truncateString(label, 12)}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
       </ScrollArea>
     </div>
   )

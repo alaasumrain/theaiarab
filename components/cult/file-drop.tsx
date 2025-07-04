@@ -115,12 +115,12 @@ export function FileUploader(props: FileUploaderProps) {
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (!multiple && maxFiles === 1 && acceptedFiles.length > 1) {
-        toast.error("Cannot upload more than 1 file at a time")
+        toast.error("لا يمكن رفع أكثر من ملف واحد في المرة الواحدة")
         return
       }
 
       if ((files?.length ?? 0) + acceptedFiles.length > maxFiles) {
-        toast.error(`Cannot upload more than ${maxFiles} files`)
+        toast.error(`لا يمكن رفع أكثر من ${maxFiles} ملف`)
         return
       }
 
@@ -136,7 +136,7 @@ export function FileUploader(props: FileUploaderProps) {
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
-          toast.error(`File ${file.name} was rejected`)
+          toast.error(`تم رفض الملف ${file.name}`)
         })
       }
 
@@ -146,15 +146,15 @@ export function FileUploader(props: FileUploaderProps) {
         updatedFiles.length <= maxFiles
       ) {
         const target =
-          updatedFiles.length > 0 ? `${updatedFiles.length} files` : `file`
+          updatedFiles.length > 0 ? `${updatedFiles.length} ملف` : `ملف`
 
         toast.promise(onUpload(updatedFiles), {
-          loading: `Uploading ${target}...`,
+          loading: `جاري رفع ${target}...`,
           success: () => {
             setFiles([])
-            return `${target} uploaded`
+            return `تم رفع ${target} بنجاح`
           },
-          error: `Failed to upload ${target}`,
+          error: `فشل في رفع ${target}`,
         })
       }
     },
@@ -216,7 +216,7 @@ export function FileUploader(props: FileUploaderProps) {
                   />
                 </div>
                 <p className="font-medium text-muted-foreground">
-                  Drop the files here
+                  اسحب الملفات هنا
                 </p>
               </div>
             ) : (
@@ -229,14 +229,14 @@ export function FileUploader(props: FileUploaderProps) {
                 </div>
                 <div className="space-y-px">
                   <p className="font-medium text-muted-foreground">
-                    Drag {`'n'`} drop files here, or click to select files
+                    اسحب الملفات هنا أو انقر لاختيار الملفات
                   </p>
                   <p className="text-sm text-muted-foreground/70">
-                    You can upload
+                    يمكنك رفع
                     {maxFiles > 1
-                      ? ` ${maxFiles === Infinity ? "multiple" : maxFiles}
-                      files (up to ${formatBytes(maxSize)} each)`
-                      : ` a file with ${formatBytes(maxSize)}`}
+                      ? ` ${maxFiles === Infinity ? "ملفات متعددة" : maxFiles}
+                      ملف (بحد أقصى ${formatBytes(maxSize)} لكل ملف)`
+                      : ` ملف بحد أقصى ${formatBytes(maxSize)}`}
                   </p>
                 </div>
               </div>

@@ -22,12 +22,20 @@ type TagData = {
   name: string
 }
 
-const client = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Create client only if environment variables are available
+const client = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+  : null
 async function getFilters(): Promise<FilterData> {
   try {
+    if (!client) {
+      // Return empty data if no client available (build time)
+      return { categories: [], labels: [], tags: [] }
+    }
+
     const { data: productsData, error } = await client
       .from("products")
       .select("categories, labels, tags")
