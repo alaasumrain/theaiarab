@@ -45,7 +45,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className={`${fontSans.variable} font-sans`}>
+    <html lang="ar" dir="rtl" className={`${fontSans.variable} font-sans`} suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
       </head>

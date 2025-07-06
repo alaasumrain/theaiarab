@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { uploadImages } from "@/app/actions/client-image-management"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface ImageUploadProps {
   bucketId?: string
@@ -50,10 +51,10 @@ export function ImageUpload({
 
   const validateFile = (file: File): string | null => {
     if (!acceptedTypes.includes(file.type)) {
-      return `نوع الملف غير مدعوم: ${file.type}`
+      return `نوع الملف غير مدعوم: ${file.type}. استخدم: ${acceptedTypes.map(type => type.split('/')[1]).join(', ')}`
     }
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      return 'حجم الملف كبير جداً (الحد الأقصى 10 ميجابايت)'
+      return `حجم الملف كبير جداً (${(file.size / 1024 / 1024).toFixed(1)} ميجابايت). الحد الأقصى 10 ميجابايت`
     }
     return null
   }
@@ -63,10 +64,12 @@ export function ImageUpload({
     
     for (const file of files) {
       if (uploadFiles.length + validFiles.length >= maxFiles) {
+        toast.warning(`تم الوصول للحد الأقصى من الملفات (${maxFiles})`)
         break
       }
       
       const error = validateFile(file)
+      
       validFiles.push({
         file,
         progress: 0,
@@ -76,6 +79,12 @@ export function ImageUpload({
     }
     
     setUploadFiles(prev => [...prev, ...validFiles])
+    
+    // Show success message for valid files
+    const validCount = validFiles.filter(f => !f.error).length
+    if (validCount > 0) {
+      toast.success(`تم إضافة ${validCount} ملف${validCount > 1 ? 'ات' : ''} للرفع`)
+    }
   }, [uploadFiles.length, maxFiles])
 
   const handleDrop = useCallback((e: React.DragEvent) => {

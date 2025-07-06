@@ -18,6 +18,7 @@ import { ImageBrowser } from "@/components/admin/image-browser"
 import { ImageUpload } from "@/components/admin/image-upload"
 import { toast } from "sonner"
 import { updateProduct } from "./actions"
+import { cn } from "@/lib/utils"
 
 interface Product {
   id: string
@@ -104,8 +105,13 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   const handleLogoUpload = (urls: string[]) => {
     if (urls.length > 0) {
       setFormData(prev => ({ ...prev, logo_src: urls[0] }))
-      toast.success('تم رفع الشعار بنجاح')
+      setLogoDialogOpen(false)
+      toast.success('تم رفع الشعار وتحديده بنجاح! 🎉')
     }
+  }
+
+  const handleLogoUploadError = (errors: string[]) => {
+    toast.error(`فشل في رفع الشعار: ${errors.join(', ')}`)
   }
 
   return (
@@ -118,23 +124,41 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
             شعار الأداة
           </CardTitle>
           <CardDescription>
-            رفع أو اختيار شعار للأداة
+            رفع أو اختيار شعار للأداة - الأبعاد المُوصى بها: 200×200 بكسل أو أكبر (مربع الشكل)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
+          {/* Logo Preview with immediate feedback */}
+          <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
             <div className="flex items-center gap-4">
-              <ProductLogo 
-                logo_src={formData.logo_src}
-                codename={formData.codename}
-                arabic_name={formData.arabic_name}
-                size="lg"
-              />
+              <div className="relative">
+                <ProductLogo 
+                  logo_src={formData.logo_src}
+                  codename={formData.codename}
+                  arabic_name={formData.arabic_name}
+                  size="lg"
+                />
+                {formData.logo_src && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs">✓</span>
+                  </div>
+                )}
+              </div>
               <div>
-                <p className="font-medium">الشعار الحالي</p>
-                <p className="text-sm text-muted-foreground">
-                  {formData.logo_src ? 'شعار مخصص' : 'أيقونة افتراضية'}
+                <p className="font-medium">
+                  {formData.logo_src ? '✅ شعار مخصص نشط' : '🎯 أيقونة افتراضية'}
                 </p>
+                <p className="text-sm text-muted-foreground">
+                  {formData.logo_src 
+                    ? 'يتم عرض الشعار المخصص في الموقع' 
+                    : 'سيتم عرض أيقونة افتراضية حسب الفئة'
+                  }
+                </p>
+                {formData.logo_src && (
+                  <p className="text-xs text-blue-600 mt-1 font-mono">
+                    {formData.logo_src.split('/').pop()}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -144,35 +168,49 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               <DialogTrigger asChild>
                 <Button variant="outline" className="flex-1">
                   <ImageIcon className="mr-2 h-4 w-4" />
-                  اختيار من المكتبة
+                  {formData.logo_src ? 'تغيير الشعار' : 'إضافة شعار'}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
                 <DialogHeader>
-                  <DialogTitle>اختيار شعار من المكتبة</DialogTitle>
+                  <DialogTitle>إدارة شعار الأداة</DialogTitle>
                   <DialogDescription>
-                    اختر شعاراً من مكتبة الصور الموجودة
+                    رفع شعار جديد أو اختيار من المكتبة الموجودة
                   </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-[60vh] overflow-y-auto">
-                  <Tabs defaultValue="browse" className="w-full">
+                
+                {/* Dimension Guidelines */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">📐 متطلبات الشعار:</h4>
+                  <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                    <li>• <strong>الأبعاد المُوصى بها:</strong> 200×200 بكسل أو أكبر (مربع الشكل)</li>
+                    <li>• <strong>الحد الأقصى:</strong> 10 ميجابايت</li>
+                    <li>• <strong>الصيغ المدعومة:</strong> PNG, JPEG, WebP, SVG</li>
+                    <li>• <strong>نصيحة:</strong> استخدم خلفية شفافة (PNG) للحصول على أفضل النتائج</li>
+                  </ul>
+                </div>
+
+                <div className="max-h-[50vh] overflow-y-auto">
+                  <Tabs defaultValue="upload" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="browse">تصفح الشعارات</TabsTrigger>
-                      <TabsTrigger value="upload">رفع شعار جديد</TabsTrigger>
+                      <TabsTrigger value="upload">⬆️ رفع شعار جديد</TabsTrigger>
+                      <TabsTrigger value="browse">📁 تصفح المكتبة</TabsTrigger>
                     </TabsList>
+                    <TabsContent value="upload" className="mt-4">
+                      <ImageUpload
+                        bucketId="product-logos"
+                        onUploadComplete={handleLogoUpload}
+                        onUploadError={handleLogoUploadError}
+                        maxFiles={1}
+                        acceptedTypes={['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']}
+                        className="border-dashed border-2 border-primary/30"
+                      />
+                    </TabsContent>
                     <TabsContent value="browse" className="mt-4">
                       <ImageBrowser
                         bucketFilter="product-logos"
                         selectionMode={true}
                         onImageSelect={(image) => handleLogoSelect(image.public_url)}
-                      />
-                    </TabsContent>
-                    <TabsContent value="upload" className="mt-4">
-                      <ImageUpload
-                        bucketId="product-logos"
-                        onUploadComplete={handleLogoUpload}
-                        maxFiles={1}
-                        acceptedTypes={['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']}
                       />
                     </TabsContent>
                   </Tabs>
@@ -184,23 +222,41 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
               <Button 
                 type="button" 
                 variant="outline"
-                onClick={() => setFormData(prev => ({ ...prev, logo_src: '' }))}
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, logo_src: '' }))
+                  toast.success('تم إزالة الشعار - سيتم عرض الأيقونة الافتراضية')
+                }}
               >
                 إزالة الشعار
               </Button>
             )}
           </div>
 
-          {/* Logo URL Input */}
+          {/* Logo URL Input with validation */}
           <div className="space-y-2">
-            <Label htmlFor="logo_src">رابط الشعار (اختياري)</Label>
+            <Label htmlFor="logo_src">رابط الشعار المباشر (اختياري)</Label>
             <Input
               id="logo_src"
               value={formData.logo_src}
-              onChange={(e) => setFormData(prev => ({ ...prev, logo_src: e.target.value }))}
+              onChange={(e) => {
+                const url = e.target.value
+                setFormData(prev => ({ ...prev, logo_src: url }))
+                // Basic URL validation feedback
+                if (url && !url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) && url.startsWith('http')) {
+                  toast.warning('تأكد من أن الرابط ينتهي بامتداد صورة صحيح (.png, .jpg, إلخ)')
+                }
+              }}
               placeholder="https://example.com/logo.png"
               dir="ltr"
+              className={cn(
+                formData.logo_src && !formData.logo_src.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) && formData.logo_src.startsWith('http')
+                  ? 'border-yellow-500 focus:ring-yellow-500' 
+                  : ''
+              )}
             />
+            <p className="text-xs text-muted-foreground">
+              يمكنك لصق رابط صورة مباشر من الإنترنت أو استخدام "رفع شعار جديد" أعلاه
+            </p>
           </div>
         </CardContent>
       </Card>

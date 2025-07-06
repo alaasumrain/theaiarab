@@ -41,7 +41,6 @@ export async function updateProduct(
     // Prepare update data
     const updateData = {
       ...data,
-      updated_at: new Date().toISOString(),
       // Handle empty strings
       arabic_name: data.arabic_name || null,
       arabic_description: data.arabic_description || null,
@@ -57,17 +56,6 @@ export async function updateProduct(
       .eq('id', productId)
 
     if (error) throw error
-
-    // Log admin activity
-    await supabase.rpc('log_admin_activity', {
-      action: 'update_product',
-      entity_type: 'product',
-      entity_id: productId,
-      details: { 
-        product_name: data.arabic_name || data.codename,
-        changes: Object.keys(data)
-      }
-    })
 
     // Revalidate pages
     revalidatePath('/admin/products')

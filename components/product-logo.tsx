@@ -76,9 +76,27 @@ export function ProductLogo({
   const displayName = arabic_name || codename
   const sizeClass = sizeClasses[size]
 
-  // For now, always use placeholder icons until proper logos are uploaded
-  // This prevents external URL errors and provides consistent UI
-  // TODO: Re-enable logo loading once proper logos are uploaded to storage
+  // If we have a logo_src, try to display it
+  if (logo_src) {
+    const logoUrl = getStorageBucketUrl(logo_src)
+    
+    return (
+      <div className={cn(
+        "rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 bg-white",
+        sizeClass,
+        className
+      )}>
+        <ImageWithFallback
+          src={logoUrl}
+          alt={`${displayName} logo`}
+          width={200}
+          height={200}
+          className="w-full h-full object-cover"
+          fallback="/placeholder.png"
+        />
+      </div>
+    )
+  }
 
   // Fallback to icon if no logo and showFallbackIcon is true
   if (showFallbackIcon) {
