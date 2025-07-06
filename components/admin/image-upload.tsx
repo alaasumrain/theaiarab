@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Upload, X, Image, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,6 +18,7 @@ interface ImageUploadProps {
   maxFiles?: number
   acceptedTypes?: string[]
   className?: string
+  autoUpload?: boolean
 }
 
 interface UploadFile {
@@ -41,7 +42,8 @@ export function ImageUpload({
   onUploadError,
   maxFiles = 10,
   acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-  className
+  className,
+  autoUpload = false
 }: ImageUploadProps) {
   const [selectedBucket, setSelectedBucket] = useState(bucketId || 'site-assets')
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([])
@@ -194,6 +196,20 @@ export function ImageUpload({
     }
   }
 
+  // Auto-upload effect
+  useEffect(() => {
+    if (autoUpload && !isUploading) {
+      const pendingFiles = uploadFiles.filter(f => f.status === 'pending')
+      if (pendingFiles.length > 0) {
+        // Small delay to ensure state is updated
+        const timer = setTimeout(() => {
+          uploadAllFiles()
+        }, 100)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [uploadFiles, autoUpload, isUploading])
+
   const getStatusIcon = (status: UploadFile['status']) => {
     switch (status) {
       case 'uploading':
@@ -219,7 +235,10 @@ export function ImageUpload({
           رفع الصور
         </CardTitle>
         <CardDescription>
-          اسحب الصور هنا أو انقر لاختيارها (الحد الأقصى {maxFiles} صور)
+          {autoUpload 
+            ? `اسحب الصور هنا أو انقر لاختيارها - سيتم الرفع تلقائياً (الحد الأقصى ${maxFiles} صور)`
+            : `اسحب الصور هنا أو انقر لاختيارها (الحد الأقصى ${maxFiles} صور)`
+          }
         </CardDescription>
       </CardHeader>
       
@@ -286,7 +305,7 @@ export function ImageUpload({
             <div className="flex items-center justify-between">
               <h4 className="font-medium">الملفات المحددة ({uploadFiles.length})</h4>
               <div className="flex gap-2">
-                {pendingCount > 0 && (
+                {pendingCount > 0 && !autoUpload && (
                   <Button 
                     onClick={uploadAllFiles} 
                     disabled={isUploading}
@@ -295,6 +314,12 @@ export function ImageUpload({
                     {isUploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     رفع {pendingCount} ملف
                   </Button>
+                )}
+                {autoUpload && isUploading && (
+                  <Badge variant="default" className="bg-blue-100 text-blue-800">
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    جاري الرفع التلقائي...
+                  </Badge>
                 )}
                 <Button variant="outline" size="sm" onClick={clearAll}>
                   مسح الكل

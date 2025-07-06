@@ -204,6 +204,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
                         maxFiles={1}
                         acceptedTypes={['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']}
                         className="border-dashed border-2 border-primary/30"
+                        autoUpload={true}
                       />
                     </TabsContent>
                     <TabsContent value="browse" className="mt-4">
