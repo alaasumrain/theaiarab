@@ -34,8 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ProductActions } from "./product-actions"
-import { ProductLogo } from "@/components/product-logo"
+import { ProductRow } from "./product-row"
 
 interface Product {
   id: string
@@ -92,72 +91,7 @@ async function getProducts(
   return data || []
 }
 
-function ProductRow({ product }: { product: Product }) {
-  return (
-    <TableRow>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-3">
-          <ProductLogo 
-            logo_src={product.logo_src}
-            codename={product.codename}
-            arabic_name={product.arabic_name}
-            size="sm"
-          />
-          <div>
-            <p className="font-medium">
-              {product.arabic_name || product.codename}
-            </p>
-            {product.arabic_name && (
-              <p className="text-sm text-muted-foreground">
-                {product.codename}
-              </p>
-            )}
-          </div>
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        <Badge variant="outline">
-          {product.categories}
-        </Badge>
-      </TableCell>
-      
-      <TableCell>
-        <Badge variant={product.approved ? "default" : "secondary"}>
-          {product.approved ? "معتمد" : "معلق"}
-        </Badge>
-      </TableCell>
-      
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <Eye className="h-3 w-3" />
-          {product.view_count || 0}
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        {product.difficulty_level && (
-          <Badge 
-            variant={
-              product.difficulty_level === 'مبتدئ' ? 'default' :
-              product.difficulty_level === 'متوسط' ? 'secondary' : 'destructive'
-            }
-          >
-            {product.difficulty_level}
-          </Badge>
-        )}
-      </TableCell>
-      
-      <TableCell>
-        {new Date(product.created_at).toLocaleDateString('ar-SA')}
-      </TableCell>
-      
-      <TableCell>
-        <ProductActions product={product} />
-      </TableCell>
-    </TableRow>
-  )
-}
+
 
 export default async function ProductsManagement({
   searchParams,

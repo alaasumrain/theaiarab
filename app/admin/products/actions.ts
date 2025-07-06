@@ -244,3 +244,53 @@ export async function bulkDeleteProducts(productIds: string[]) {
   revalidatePath('/products')
   revalidatePath('/')
 }
+
+export async function updateProductLogo(productId: string, logoSrc: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient()
+  
+  try {
+    // Check if user is admin
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("المصادقة مطلوبة")
+    
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    if (userData?.role !== 'admin') {
+      throw new Error("ليس لديك صلاحية لهذا الإجراء")
+    }
+
+    // Update product logo
+    const { error } = await supabase
+      .from('products')
+      .update({ logo_src: logoSrc })
+      .eq('id', productId)
+
+    if (error) throw error
+
+    // Log admin activity
+    await supabase.rpc('log_admin_activity', {
+      action: 'update_product_logo',
+      entity_type: 'product',
+      entity_id: productId
+    })
+
+    // Revalidate pages
+    revalidatePath('/admin/products')
+    revalidatePath('/products')
+    revalidatePath(`/products/${productId}`)
+    revalidatePath('/')
+
+    return { success: true }
+
+  } catch (error) {
+    console.error('Error updating product logo:', error)
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'حدث خطأ غير متوقع'
+    }
+  }
+}
