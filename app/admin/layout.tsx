@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ModeToggle } from "@/app/providers"
 
 export default async function AdminLayout({
   children,
@@ -111,6 +112,9 @@ export default async function AdminLayout({
           </div>
 
           <div className="flex-1" />
+
+          {/* Theme Toggle */}
+          <ModeToggle />
 
           {/* Admin User Menu */}
           <DropdownMenu>
