@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { 
   Eye, 
   Download, 
@@ -94,7 +94,7 @@ export function MediaBrowser({ bucket, search, type, view = 'grid' }: MediaBrows
           file.original_filename.toLowerCase().includes(search.toLowerCase()) ||
           file.alt_text?.toLowerCase().includes(search.toLowerCase()) ||
           file.caption?.toLowerCase().includes(search.toLowerCase()) ||
-          file.tags?.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
+          file.tags?.some((tag: string) => tag.toLowerCase().includes(search.toLowerCase()))
         )
       }
       
