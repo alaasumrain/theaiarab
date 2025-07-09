@@ -9,7 +9,10 @@ import {
   Crown,
   Shield,
   Activity,
-  Images
+  Images,
+  Newspaper,
+  Mail,
+  MessageSquare
 } from "lucide-react"
 import Link from "next/link"
 
@@ -69,6 +72,12 @@ export default async function AdminLayout({
       description: "مراجعة وإدارة أدوات الذكاء الاصطناعي"
     },
     {
+      name: "إدارة الأخبار",
+      href: "/admin/news",
+      icon: Newspaper,
+      description: "إنشاء وتحرير مقالات الأخبار والمحتوى"
+    },
+    {
       name: "مكتبة الوسائط",
       href: "/admin/media",
       icon: Images,
@@ -79,6 +88,18 @@ export default async function AdminLayout({
       href: "/admin/users",
       icon: Users,
       description: "إدارة المستخدمين والصلاحيات"
+    },
+    {
+      name: "إدارة النشرة البريدية",
+      href: "/admin/newsletter",
+      icon: Mail,
+      description: "إدارة المشتركين والحملات البريدية"
+    },
+    {
+      name: "مراجعة التقييمات",
+      href: "/admin/reviews",
+      icon: MessageSquare,
+      description: "مراجعة وإدارة تقييمات المستخدمين"
     },
     {
       name: "سجل النشاطات",

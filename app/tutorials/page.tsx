@@ -27,10 +27,32 @@ export default async function TutorialsPage({
   ])
 
   const getDurationFromContent = (content: string) => {
-    // Estimate reading time based on content length (roughly 200 words per minute)
-    const wordCount = content.split(' ').length
-    const minutes = Math.ceil(wordCount / 200)
-    return `${minutes} دقيقة`
+    // Better Arabic word counting - handle both Arabic and English content
+    const arabicWords = content.match(/[\u0600-\u06FF]+/g) || []
+    const englishWords = content.match(/[a-zA-Z]+/g) || []
+    const totalWords = arabicWords.length + englishWords.length
+    // Arabic reading speed is typically 180-200 wpm, adjust accordingly
+    const minutes = Math.ceil(totalWords / 180)
+    return `${Math.max(1, minutes)} دقيقة`
+  }
+
+  const getContentExcerpt = (content: string) => {
+    // Extract first meaningful paragraph, skip markdown headers
+    const cleanContent = content
+      .replace(/^#+ .+$/gm, '') // Remove headers
+      .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+      .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold formatting
+      .replace(/\*(.+?)\*/g, '$1') // Remove italic formatting
+      .trim()
+    
+    // Get first 200 characters but try to end at a complete sentence
+    const excerpt = cleanContent.substring(0, 200)
+    const lastSentence = excerpt.lastIndexOf('.')
+    const lastQuestion = excerpt.lastIndexOf('؟')
+    const lastExclamation = excerpt.lastIndexOf('!')
+    
+    const cutoff = Math.max(lastSentence, lastQuestion, lastExclamation)
+    return cutoff > 100 ? excerpt.substring(0, cutoff + 1) : excerpt + '...'
   }
 
   return (
@@ -58,46 +80,51 @@ export default async function TutorialsPage({
 
             <PageGrid columns="3" className="mb-12">
         {tutorials.map((tutorial) => (
-          <Card key={tutorial.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <Brain className="h-8 w-8 text-primary mb-3 transition-transform duration-300 group-hover:scale-110" />
+          <Card key={tutorial.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02] bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between mb-3">
                 <Badge 
                   variant={
                     tutorial.difficulty === 'مبتدئ' ? 'default' : 
                     tutorial.difficulty === 'متوسط' ? 'secondary' : 'destructive'
                   }
-                  className="transition-all duration-300 hover:scale-105"
+                  className="transition-all duration-300 hover:scale-105 text-xs"
                 >
                   {tutorial.difficulty || 'مبتدئ'}
                 </Badge>
+                <Brain className="h-8 w-8 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
               </div>
-              <CardTitle className="text-xl leading-relaxed group-hover:text-primary transition-colors duration-300">
+              <CardTitle className="text-xl leading-tight text-right group-hover:text-primary transition-colors duration-300 mb-3 font-bold">
                 {tutorial.title_ar}
               </CardTitle>
-              <CardDescription className="text-base leading-relaxed line-clamp-3">
-                {tutorial.content.substring(0, 150)}...
+              <CardDescription className="text-base leading-relaxed line-clamp-3 text-justify text-muted-foreground/80">
+                {getContentExcerpt(tutorial.content)}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{getDurationFromContent(tutorial.content)}</span>
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between gap-4">
+                <div className="text-sm text-muted-foreground flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-primary/60" />
+                    <span className="font-medium">{getDurationFromContent(tutorial.content)}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span>{tutorial.view_count || 0}</span>
+                  <div className="flex items-center gap-1.5">
+                    <Eye className="h-4 w-4 text-primary/60" />
+                    <span className="font-medium">{tutorial.view_count || 0}</span>
                   </div>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs font-medium border-primary/20 text-primary/80">
                     {tutorial.category}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm" asChild className="transition-all duration-300 hover:scale-105">
-                  <Link href={`/tutorials/${tutorial.id}`}>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  asChild 
+                  className="transition-all duration-300 hover:scale-105 shadow-sm bg-primary hover:bg-primary/90"
+                >
+                  <Link href={`/tutorials/${tutorial.id}`} className="flex items-center gap-2">
+                    <ArrowLeft className="h-4 w-4" />
                     ابدأ التعلم
-                    <ArrowLeft className="h-4 w-4 mr-2" />
                   </Link>
                 </Button>
               </div>

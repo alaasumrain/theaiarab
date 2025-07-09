@@ -6,6 +6,7 @@ import Script from "next/script"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { TopNavbar } from "@/components/top-navbar"
+import { SmartBreadcrumb } from "@/components/smart-breadcrumb"
 import { SidebarProvider } from "@/contexts/sidebar-context"
 import { GoogleAnalytics } from "@/components/analytics"
 
@@ -49,16 +50,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <GoogleAnalytics />
       </head>
-      <body className="arabic-font">
+      <body className="arabic-font" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
           <TooltipProvider>
             <SidebarProvider>
               <TopNavbar />
+              <SmartBreadcrumb />
               <main className="bg-[#FAFAFA] dark:bg-background text-foreground w-full min-h-screen">
                 {children}
               </main>

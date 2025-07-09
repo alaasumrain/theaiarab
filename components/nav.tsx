@@ -177,7 +177,7 @@ export function NavSidebar({
               >
                 <Link href="/login">
                   <LogIn className="h-4 w-4" />
-                  <span className="mr-2">تسجيل الدخول</span>
+                  <span className="mr-2 text-xs sm:text-sm">تسجيل الدخول</span>
                 </Link>
               </Button>
             )}

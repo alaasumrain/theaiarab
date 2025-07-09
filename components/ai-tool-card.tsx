@@ -16,6 +16,7 @@ import MinimalCard, {
 } from "@/components/cult/minimal-card"
 import { incrementClickCount } from "@/app/actions/product"
 import { ProductLogo } from "@/components/product-logo"
+import { StarRating } from "@/components/star-rating"
 
 interface AITool {
   id: string
@@ -42,6 +43,9 @@ interface AITool {
   arabic_name?: string
   arabic_description?: string
   pricing_model?: string
+  // Rating data (passed from server)
+  averageRating?: number
+  reviewCount?: number
 }
 
 const difficultyColors = {
@@ -117,11 +121,11 @@ export const AIToolCard: React.FC<{
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <MinimalCardTitle className="text-base font-bold mb-1 line-clamp-2">
-                      {data.arabic_name || data.codename}
+                      {data.codename}
                     </MinimalCardTitle>
                     {data.arabic_name && (
                       <p className="text-xs text-muted-foreground mb-2 truncate">
-                        {data.codename}
+                        {data.arabic_name}
                       </p>
                     )}
                   </div>
@@ -170,10 +174,20 @@ export const AIToolCard: React.FC<{
                     <span>{optimisticResource.view_count || 0}</span>
                   </div>
                   
-                  <div className="flex items-center gap-1">
-                    <Star className="w-3 h-3" />
-                    <span>4.5</span>
-                  </div>
+                  {(optimisticResource.averageRating && optimisticResource.averageRating > 0) ? (
+                    <StarRating 
+                      rating={optimisticResource.averageRating} 
+                      readonly 
+                      size="sm" 
+                      showCount
+                      reviewCount={optimisticResource.reviewCount}
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3 h-3 text-gray-300" />
+                      <span className="text-xs text-muted-foreground">جديد</span>
+                    </div>
+                  )}
                 </div>
                 
                 <motion.span

@@ -14,7 +14,8 @@ import {
   Newspaper,
   Plus,
   PanelRightOpen,
-  PanelRightClose
+  PanelRightClose,
+  CreditCard
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -43,6 +44,11 @@ const navigation = [
     name: "الأخبار",
     href: "/news",
     icon: Newspaper
+  },
+  {
+    name: "الأسعار",
+    href: "/pricing",
+    icon: CreditCard
   },
   {
     name: "أضف أداة",
@@ -98,9 +104,9 @@ export function TopNavbar() {
         {/* Logo */}
         <Link 
           href="/" 
-          className="flex items-center gap-2 font-bold text-lg hover:text-primary transition-all duration-150 ease-in-out transform hover:scale-105"
+          className="flex items-center gap-2 font-bold text-sm sm:text-lg hover:text-primary transition-all duration-150 ease-in-out transform hover:scale-105"
         >
-          <Brain className="h-6 w-6 text-primary animate-pulse" />
+          <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-primary animate-pulse" />
           <span className="hidden sm:inline">العربي للذكاء الاصطناعي</span>
           <span className="sm:hidden">العربي AI</span>
         </Link>
@@ -116,7 +122,7 @@ export function TopNavbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium relative px-3 py-2 rounded-md transition-all duration-150 ease-in-out",
+                  "text-xs sm:text-sm font-medium relative px-3 py-2 rounded-md transition-all duration-150 ease-in-out",
                   "hover:bg-accent/50 hover:text-primary transform hover:scale-105",
                   isActive 
                     ? "text-primary bg-accent/30" 
@@ -163,46 +169,70 @@ export function TopNavbar() {
                 <span className="sr-only">فتح القائمة</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <div className="flex flex-col gap-4 py-4">
-                {/* Mobile Logo */}
-                <div className="flex items-center gap-2 font-bold text-lg pb-4 border-b">
-                  <Brain className="h-6 w-6 text-primary animate-pulse" />
-                  العربي للذكاء الاصطناعي
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
+              <div className="flex flex-col h-full">
+                {/* Mobile Header */}
+                <div className="flex items-center gap-3 font-bold text-base sm:text-lg p-6 border-b bg-gradient-to-r from-primary/5 to-secondary/5">
+                  <Brain className="h-6 w-6 sm:h-7 sm:w-7 text-primary animate-pulse" />
+                  <span>العربي للذكاء الاصطناعي</span>
                 </div>
 
                 {/* Mobile Navigation */}
-                <nav className="flex flex-col gap-3">
-                  {navigation.map((item) => {
-                    const Icon = item.icon
-                    const isActive = pathname === item.href || 
-                      (item.href !== '/' && pathname.startsWith(item.href))
-                    
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-all duration-150 ease-in-out transform hover:scale-105",
-                          isActive 
-                            ? "bg-primary/10 text-primary shadow-md" 
-                            : "text-muted-foreground hover:text-primary hover:bg-accent"
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.name}
-                      </Link>
-                    )
-                  })}
+                <nav className="flex-1 px-4 py-6">
+                  <div className="space-y-2">
+                    {navigation.map((item, index) => {
+                      const Icon = item.icon
+                      const isActive = pathname === item.href || 
+                        (item.href !== '/' && pathname.startsWith(item.href))
+                      
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setIsOpen(false)}
+                          className={cn(
+                            "flex items-center gap-4 px-4 py-3 text-sm sm:text-base font-medium rounded-xl transition-all duration-200 ease-in-out group",
+                            isActive 
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" 
+                              : "text-muted-foreground hover:text-primary hover:bg-accent/50 hover:shadow-md"
+                          )}
+                          style={{
+                            animationDelay: `${index * 100}ms`
+                          }}
+                        >
+                          <Icon className={cn(
+                            "h-5 w-5 transition-transform duration-200 group-hover:scale-110",
+                            isActive ? "text-primary-foreground" : ""
+                          )} />
+                          <span className="flex-1">{item.name}</span>
+                          {isActive && (
+                            <div className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
+                          )}
+                        </Link>
+                      )
+                    })}
+                  </div>
                 </nav>
 
-                {/* Mobile Footer */}
-                <div className="mt-auto pt-4 border-t">
+                {/* Mobile Quick Actions */}
+                <div className="px-4 py-3 border-t bg-muted/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-medium text-muted-foreground">إعدادات سريعة</span>
+                  </div>
+                  
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">المظهر</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">المظهر</span>
+                    </div>
                     <ModeToggle />
                   </div>
+                </div>
+
+                {/* Mobile Footer */}
+                <div className="px-4 py-3 border-t text-center">
+                  <p className="text-xs text-muted-foreground">
+                    مركزك الشامل لأدوات الذكاء الاصطناعي
+                  </p>
                 </div>
               </div>
             </SheetContent>

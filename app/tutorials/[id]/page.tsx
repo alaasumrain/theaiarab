@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft, Clock, Eye, Share2, BookOpen, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -7,8 +8,48 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getTutorialBySlug, incrementTutorialViews, getFeaturedTutorials } from "../../actions/tutorials"
+import { MarkdownRenderer } from "@/components/markdown-renderer"
+import { TableOfContents } from "@/components/table-of-contents"
+import { ReadingProgress } from "@/components/reading-progress"
 
 export const dynamic = "force-dynamic"
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { id: string } 
+}): Promise<Metadata> {
+  const tutorial = await getTutorialBySlug(params.id)
+  
+  if (!tutorial) {
+    return {
+      title: "الدرس غير موجود - العربي للذكاء الاصطناعي"
+    }
+  }
+
+  const content = tutorial.content || ''
+  const excerpt = content.substring(0, 150).replace(/[#*`]/g, '') + '...'
+  
+  return {
+    title: `${tutorial.title_ar} - دروس العربي للذكاء الاصطناعي`,
+    description: excerpt || `تعلم ${tutorial.title_ar} - درس تعليمي شامل باللغة العربية`,
+    keywords: `${tutorial.category}, ${tutorial.difficulty}, ذكاء اصطناعي, تعلم, دروس عربية`,
+    openGraph: {
+      title: tutorial.title_ar,
+      description: excerpt,
+      type: 'article',
+      publishedTime: tutorial.created_at || undefined,
+      modifiedTime: tutorial.updated_at || undefined,
+      authors: ['العربي للذكاء الاصطناعي'],
+      section: tutorial.category,
+    },
+    twitter: {
+      card: 'summary',
+      title: tutorial.title_ar,
+      description: excerpt,
+    }
+  }
+}
 
 interface TutorialPageProps {
   params: {
@@ -31,9 +72,13 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
   
   const getDurationFromContent = (content: string | null | undefined) => {
     if (!content) return '1 دقيقة'
-    const wordCount = content.split(' ').length
-    const minutes = Math.ceil(wordCount / 200)
-    return `${minutes} دقيقة`
+    // Better Arabic word counting - handle both Arabic and English content
+    const arabicWords = content.match(/[\u0600-\u06FF]+/g) || []
+    const englishWords = content.match(/[a-zA-Z]+/g) || []
+    const totalWords = arabicWords.length + englishWords.length
+    // Arabic reading speed is typically 180-200 wpm
+    const minutes = Math.ceil(totalWords / 180)
+    return `${Math.max(1, minutes)} دقيقة`
   }
 
   const formatDate = (dateString: string) => {
@@ -52,6 +97,7 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgress />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Back Navigation */}
         <div className="mb-6">
@@ -68,45 +114,45 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
           <div className="lg:col-span-3 min-w-0">
             <article className="space-y-8">
               {/* Header */}
-              <header>
-                <div className="flex items-center gap-3 mb-4">
+              <header className="text-right">
+                <div className="flex items-center justify-start gap-3 mb-6">
                   <Badge 
                     variant={
                       tutorial.difficulty === 'مبتدئ' ? 'default' : 
                       tutorial.difficulty === 'متوسط' ? 'secondary' : 'destructive'
                     }
-                    className="transition-all duration-300 hover:scale-105"
+                    className="transition-all duration-300 hover:scale-105 px-3 py-1"
                   >
                     {tutorial.difficulty || 'مبتدئ'}
                   </Badge>
-                  <Badge variant="outline" className="transition-all duration-300 hover:scale-105">
+                  <Badge variant="outline" className="transition-all duration-300 hover:scale-105 border-primary/30 text-primary/80 px-3 py-1">
                     {tutorial.category}
                   </Badge>
                 </div>
                 
-                <h1 className="text-4xl font-bold leading-tight mb-4 text-foreground">
+                <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6 text-foreground text-right">
                   {tutorial.title_ar}
                 </h1>
                 
                 {tutorial.title_en && (
-                  <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
+                  <p className="text-xl text-muted-foreground mb-8 leading-relaxed text-right font-medium">
                     {tutorial.title_en}
                   </p>
                 )}
 
-                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center justify-start gap-6 text-sm text-muted-foreground bg-muted/30 rounded-lg p-4 border">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>{getDurationFromContent(tutorialContent)}</span>
+                    <Clock className="h-4 w-4 text-primary/60" />
+                    <span className="font-medium">{getDurationFromContent(tutorialContent)}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4" />
-                    <span>{(tutorial.view_count || 0) + 1} مشاهدة</span>
+                    <Eye className="h-4 w-4 text-primary/60" />
+                    <span className="font-medium">{(tutorial.view_count || 0) + 1} مشاهدة</span>
                   </div>
                   {tutorial.created_at && (
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>نُشر في {formatDate(tutorial.created_at)}</span>
+                      <User className="h-4 w-4 text-primary/60" />
+                      <span className="font-medium">نُشر في {formatDate(tutorial.created_at)}</span>
                     </div>
                   )}
                 </div>
@@ -115,26 +161,7 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
               <Separator />
 
               {/* Content */}
-              <div className="prose prose-lg max-w-none prose-headings:text-right prose-p:text-right prose-li:text-right prose-blockquote:text-right">
-                <div 
-                  className="tutorial-content space-y-4 text-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{ 
-                    __html: tutorialContent
-                      .replace(/^# /gm, '<h1 class="text-3xl font-bold mb-4 mt-8 text-foreground">')
-                      .replace(/^## /gm, '<h2 class="text-2xl font-semibold mb-3 mt-6 text-foreground">')
-                      .replace(/^### /gm, '<h3 class="text-xl font-medium mb-2 mt-4 text-foreground">')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-                      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                      .replace(/```(.*?)```/gs, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto border"><code>$1</code></pre>')
-                      .replace(/`(.*?)`/g, '<code class="bg-muted px-2 py-1 rounded text-sm">$1</code>')
-                      .replace(/\n\n/g, '</p><p class="mb-4 leading-relaxed">')
-                      .replace(/^/gm, '<p class="mb-4 leading-relaxed">')
-                      .replace(/<p class="mb-4 leading-relaxed">(<h[1-6])/g, '$1')
-                      .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
-                      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline transition-colors duration-300">$1</a>')
-                  }}
-                />
-              </div>
+              <MarkdownRenderer content={tutorialContent} />
 
               {/* Share Section */}
               <div className="mt-12 pt-8 border-t">
@@ -159,6 +186,13 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pb-8">
+              {/* Table of Contents */}
+              <Card className="transition-all duration-300 hover:shadow-md">
+                <CardContent className="pt-6">
+                  <TableOfContents content={tutorialContent} />
+                </CardContent>
+              </Card>
+              
               {/* Featured Tutorials */}
               <Card className="transition-all duration-300 hover:shadow-md">
                 <CardHeader>

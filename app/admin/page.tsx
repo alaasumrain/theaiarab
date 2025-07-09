@@ -170,7 +170,7 @@ export default async function AdminDashboard() {
         />
         <StatsCard
           title="إجمالي المشاهدات"
-          value={stats.totalViews.toLocaleString('ar')}
+          value={stats.totalViews.toLocaleString()}
           description="مشاهدات جميع الأدوات"
           icon={Eye}
         />
@@ -195,11 +195,18 @@ export default async function AdminDashboard() {
                   <div key={product.id} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">
-                        {product.arabic_name || product.codename}
+                        {product.codename}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(product.created_at).toLocaleDateString('ar-SA')}
-                      </p>
+                      <div className="flex flex-col gap-0.5">
+                        {product.arabic_name && (
+                          <p className="text-sm text-muted-foreground">
+                            {product.arabic_name}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(product.created_at).toLocaleDateString('ar-SA')}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={product.approved ? "default" : "secondary"}>

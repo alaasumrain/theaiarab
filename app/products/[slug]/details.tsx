@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { CardDescription, CardTitle } from "@/components/ui/card"
 import { ProductLogo } from "@/components/product-logo"
+import { ProductReviews } from "@/components/product-reviews"
 
 interface Product {
   id: string
@@ -59,13 +60,18 @@ export const ProductDetails = ({
             <BreadcrumbItem>
               <BreadcrumbLink href="/">الأدوات</BreadcrumbLink>/
               <BreadcrumbLink href={`/products/${product.id}`}>
-                {product.codename.substring(0, 20)}
+                {(product as any).arabic_name || product.codename.substring(0, 20)}
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
           <CardTitle className="text-6xl tracking-tighter font-extrabold text-neutral-900 dark:text-neutral-200">
-            {product.punchline}
+            {(product as any).arabic_name || product.codename}
           </CardTitle>
+          {product.punchline && (
+            <CardDescription className="md:text-xl text-lg tracking-tight text-neutral-800 text-balance dark:text-neutral-400 mb-4">
+              {product.punchline}
+            </CardDescription>
+          )}
           <CardDescription className="md:text-xl text-lg tracking-tight text-neutral-800 text-balance dark:text-neutral-400 flex gap-2 items-center ">
             <Blocks className="stroke-1 size-8" />{" "}
             <span className="flex-wrap">{product.categories}</span>
@@ -132,8 +138,30 @@ export const ProductDetails = ({
             </div>
           </div>
           <CardDescription className="text-2xl tracking-tight leading-tight text-neutral-800 text-balance dark:text-neutral-400">
-            {product.description}
+            {(product as any).arabic_description || product.description}
           </CardDescription>
+          
+          {/* Additional Product Information */}
+          <div className="space-y-3">
+            {(product as any).difficulty_level && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">مستوى الصعوبة:</span>
+                <span className="text-sm">{(product as any).difficulty_level}</span>
+              </div>
+            )}
+            {(product as any).is_free !== undefined && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">السعر:</span>
+                <span className="text-sm">{(product as any).is_free ? 'مجاني' : 'مدفوع'}</span>
+              </div>
+            )}
+            {(product as any).language_support && (product as any).language_support.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">اللغات المدعومة:</span>
+                <span className="text-sm">{(product as any).language_support.join(', ')}</span>
+              </div>
+            )}
+          </div>
 
           <div className="md:text-xl sm:text-lg tracking-tight text-neutral-800 text-balance dark:text-neutral-400 flex gap-2 items-center flex-wrap text-sm">
             {product.labels[0] !== "unlabeled" &&
@@ -202,6 +230,12 @@ export const ProductDetails = ({
         </Link>
       )
     })()}
+    
+    {/* Reviews Section */}
+    <div className="mt-16 max-w-4xl mx-auto w-full">
+      <ProductReviews productId={product.id} />
+    </div>
+    
     <div className="absolute top-36 md:top-0 left-[-10%] right-0 h-[400px] w-[300px]  md:h-[500px] md:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,235,59,.15),rgba(255,255,255,0))]"></div>
   </div>
   )

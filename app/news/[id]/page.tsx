@@ -1,15 +1,55 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
+import { Metadata } from "next"
 import Link from "next/link"
-import { ArrowLeft, Clock, Eye, Share2, Calendar, User } from "lucide-react"
+import { ArrowLeft, Clock, Eye, Share2, Calendar, User, Bookmark, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { getNewsById, incrementNewsViews, getLatestNews } from "../../actions/news"
 import { ContentImage } from "@/components/content-image"
+import { MarkdownRenderer } from "@/components/markdown-renderer"
 
 export const dynamic = "force-dynamic"
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { id: string } 
+}): Promise<Metadata> {
+  const article = await getNewsById(params.id)
+  
+  if (!article) {
+    return {
+      title: "المقال غير موجود - العربي للذكاء الاصطناعي"
+    }
+  }
+
+  const description = article.summary_ar || article.summary || 
+    (article.content_ar || article.content_en || '').substring(0, 150).replace(/[#*`]/g, '') + '...'
+  
+  return {
+    title: `${article.title_ar} - أخبار العربي للذكاء الاصطناعي`,
+    description: description || `اقرأ ${article.title_ar} - آخر الأخبار والتحديثات في عالم الذكاء الاصطناعي`,
+    keywords: `${article.category}, أخبار الذكاء الاصطناعي, AI news Arabic, تحديثات`,
+    openGraph: {
+      title: article.title_ar,
+      description: description,
+      type: 'article',
+      publishedTime: article.published_at,
+      modifiedTime: article.updated_at,
+      authors: article.author ? [article.author] : ['العربي للذكاء الاصطناعي'],
+      section: article.category,
+      images: article.image_url ? [article.image_url] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title_ar,
+      description: description,
+      images: article.image_url ? [article.image_url] : undefined,
+    }
+  }
+}
 
 interface NewsPageProps {
   params: {
@@ -28,13 +68,13 @@ export default async function NewsPage({ params }: NewsPageProps) {
   incrementNewsViews(article.id).catch(console.error)
 
   // Get latest news for sidebar
-  const latestNews = await getLatestNews(4)
+  const latestNews = await getLatestNews(5)
   
   const getReadingTime = (content: string | null | undefined) => {
-    if (!content) return '1 دقيقة'
+    if (!content) return '2 دقائق'
     const wordCount = content.split(' ').length
     const minutes = Math.ceil(wordCount / 200)
-    return `${minutes} دقائق`
+    return `${minutes} دقائق قراءة`
   }
 
   const formatDate = (dateString: string) => {
@@ -47,73 +87,78 @@ export default async function NewsPage({ params }: NewsPageProps) {
     })
   }
 
+  const formatRelativeDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ar-SA', {
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
   const getContent = (article: any) => {
-    return article.content_ar || article.content || ''
+    return article.content_ar || article.content_en || ''
   }
 
   const articleContent = getContent(article)
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Back Navigation */}
-        <div className="mb-6">
-          <Button variant="ghost" asChild className="text-right">
-            <Link href="/news" className="flex items-center gap-2 hover:bg-accent transition-all duration-300">
-              <ArrowLeft className="h-4 w-4" />
-              العودة للأخبار
-            </Link>
-          </Button>
+      {/* Navigation Bar */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-3 max-w-7xl">
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" asChild className="text-right">
+              <Link href="/news" className="flex items-center gap-2 hover:bg-accent transition-all duration-300">
+                <ArrowLeft className="h-4 w-4" />
+                العودة للأخبار
+              </Link>
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon">
+                <Bookmark className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3 min-w-0"> {/* min-w-0 prevents overflow */}
+          <div className="lg:col-span-3 min-w-0">
             <article className="space-y-8">
-              {/* Header */}
-              <header>
-                <div className="flex items-center gap-3 mb-4">
-                  <Badge variant="default" className="transition-all duration-300 hover:scale-105">
+              {/* Article Header */}
+              <header className="space-y-6">
+                {/* Category and Meta */}
+                <div className="flex items-center gap-3">
+                  <Badge variant="default" className="bg-red-600 hover:bg-red-700">
                     {article.category}
                   </Badge>
                   {article.is_featured && (
-                    <Badge variant="secondary" className="transition-all duration-300 hover:scale-105">
+                    <Badge variant="outline" className="text-red-600 border-red-600">
                       مميز
                     </Badge>
                   )}
                 </div>
                 
-                <h1 className="text-4xl font-bold leading-tight mb-4 text-foreground">
-                  {article.title_ar}
-                </h1>
-                
-                {article.title_en && (
-                  <p className="text-xl text-muted-foreground mb-6 leading-relaxed">
-                    {article.title_en}
-                  </p>
-                )}
-
-                {/* Article Image */}
-                <div className="mb-6">
-                  <ContentImage 
-                    image_url={article.image_url}
-                    content_type="news"
-                    title={article.title_ar}
-                    aspectRatio="wide"
-                    className="h-64 md:h-80 transition-transform duration-300 hover:scale-105"
-                  />
+                {/* Title */}
+                <div className="space-y-4">
+                  <h1 className="text-4xl lg:text-5xl font-bold leading-tight text-foreground">
+                    {article.title_ar}
+                  </h1>
+                  
+                  {article.title_en && (
+                    <p className="text-xl text-muted-foreground leading-relaxed">
+                      {article.title_en}
+                    </p>
+                  )}
                 </div>
 
-                {/* Summary */}
-                {(article.summary_ar || article.summary) && (
-                  <div className="bg-muted/50 p-6 rounded-lg mb-6 border border-muted transition-all duration-300 hover:border-primary/20">
-                    <p className="text-lg leading-relaxed text-muted-foreground">
-                      {article.summary_ar || article.summary}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                {/* Article Meta */}
+                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground py-4 border-t border-b">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     <span>{formatDate(article.published_at)}</span>
@@ -129,133 +174,132 @@ export default async function NewsPage({ params }: NewsPageProps) {
                   {article.author && (
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4" />
-                      <span>{article.author}</span>
+                      <span>بقلم {article.author}</span>
                     </div>
                   )}
                 </div>
+
+                {/* Summary */}
+                {(article.summary_ar || article.summary) && (
+                  <div className="bg-muted/30 p-6 rounded-lg border-l-4 border-primary">
+                    <p className="text-lg leading-relaxed text-foreground font-medium">
+                      {article.summary_ar || article.summary}
+                    </p>
+                  </div>
+                )}
               </header>
 
-              <Separator />
-
-              {/* Content */}
-              <div className="prose prose-lg max-w-none prose-headings:text-right prose-p:text-right prose-li:text-right prose-blockquote:text-right">
-                <div 
-                  className="article-content space-y-4 text-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{ 
-                    __html: articleContent
-                      .replace(/^# /gm, '<h1 class="text-3xl font-bold mb-4 mt-8 text-foreground">')
-                      .replace(/^## /gm, '<h2 class="text-2xl font-semibold mb-3 mt-6 text-foreground">')
-                      .replace(/^### /gm, '<h3 class="text-xl font-medium mb-2 mt-4 text-foreground">')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-                      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                      .replace(/```(.*?)```/gs, '<pre class="bg-muted p-4 rounded-lg overflow-x-auto border"><code>$1</code></pre>')
-                      .replace(/`(.*?)`/g, '<code class="bg-muted px-2 py-1 rounded text-sm">$1</code>')
-                      .replace(/\n\n/g, '</p><p class="mb-4 leading-relaxed">')
-                      .replace(/^/gm, '<p class="mb-4 leading-relaxed">')
-                      .replace(/<p class="mb-4 leading-relaxed">(<h[1-6])/g, '$1')
-                      .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
-                      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline transition-colors duration-300">$1</a>')
-                  }}
+              {/* Article Image */}
+              <div className="my-8">
+                <ContentImage 
+                  image_url={article.image_url}
+                  content_type="news"
+                  title={article.title_ar}
+                  aspectRatio="wide"
+                  className="h-64 md:h-96 rounded-lg"
                 />
               </div>
 
-              {/* Share Section */}
-              <div className="mt-12 pt-8 border-t">
-                <Card className="transition-all duration-300 hover:shadow-md">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">شارك هذا المقال</h3>
-                        <p className="text-muted-foreground">ساعد الآخرين في البقاء على اطلاع</p>
-                      </div>
-                      <Button variant="outline" className="flex items-center gap-2 transition-all duration-300 hover:scale-105">
-                        <Share2 className="h-4 w-4" />
-                        شارك
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Article Content */}
+              <div className="prose prose-lg max-w-none
+                prose-headings:text-foreground prose-headings:font-bold
+                prose-p:text-foreground prose-p:leading-relaxed prose-p:text-lg
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-foreground prose-strong:font-semibold
+                prose-ul:text-foreground prose-ol:text-foreground
+                prose-li:text-foreground prose-li:leading-relaxed
+                prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary
+                prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:rounded
+              ">
+                <MarkdownRenderer content={articleContent} />
               </div>
+
+              {/* Article Footer */}
+              <footer className="mt-12 pt-8 border-t space-y-6">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {/* You can add tags here if you have them in your data model */}
+                  <Badge variant="outline" className="text-xs">#{article.category}</Badge>
+                  <Badge variant="outline" className="text-xs">#الذكاء_الاصطناعي</Badge>
+                  <Badge variant="outline" className="text-xs">#تقنية</Badge>
+                </div>
+
+                {/* Share Section */}
+                <div className="bg-muted/20 rounded-lg p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">شارك هذا المقال</h3>
+                      <p className="text-muted-foreground">ساعد الآخرين في البقاء على اطلاع</p>
+                    </div>
+                    <Button className="flex items-center gap-2">
+                      <Share2 className="h-4 w-4" />
+                      شارك
+                    </Button>
+                  </div>
+                </div>
+              </footer>
             </article>
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 pb-8">
-              {/* Latest News */}
-              <Card className="transition-all duration-300 hover:shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    آخر الأخبار
-                  </CardTitle>
-                  <CardDescription>
-                    مقالات أخرى قد تهمك
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {latestNews
-                    .filter(news => news.id !== article.id)
-                    .slice(0, 3)
-                    .map((newsItem) => (
-                    <Link 
-                      key={newsItem.id} 
-                      href={`/news/${newsItem.id}`}
-                      className="block group"
-                    >
-                      <div className="space-y-2 p-3 rounded-lg transition-all duration-300 hover:bg-accent">
-                        <h4 className="font-medium group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                          {newsItem.title_ar}
+          <aside className="lg:col-span-1 space-y-8">
+            {/* Latest News */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <h3 className="font-semibold">أحدث الأخبار</h3>
+              </div>
+              
+              <div className="space-y-4">
+                {latestNews.filter(news => news.id !== article.id).map((news) => (
+                  <article key={news.id} className="group">
+                    <Link href={`/news/${news.id}`} className="block space-y-2">
+                      <ContentImage 
+                        image_url={news.image_url}
+                        content_type="news"
+                        title={news.title_ar}
+                        aspectRatio="wide"
+                        className="h-20 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      
+                      <div className="space-y-1">
+                        <Badge variant="outline" className="text-xs">
+                          {news.category}
+                        </Badge>
+                        
+                        <h4 className="text-sm font-medium leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                          {news.title_ar}
                         </h4>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Badge variant="outline" className="text-xs">
-                            {newsItem.category}
-                          </Badge>
-                          <span>•</span>
-                          <span>{newsItem.view_count || 0} مشاهدة</span>
-                        </div>
+                        
+                        <p className="text-xs text-muted-foreground">
+                          {formatRelativeDate(news.published_at)}
+                        </p>
                       </div>
                     </Link>
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Categories */}
-              <Card className="transition-all duration-300 hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>التصنيفات</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {['تحديثات', 'تعليم', 'أدوات', 'أبحاث', 'تحليل'].map((category) => (
-                      <Link 
-                        key={category}
-                        href={`/news?category=${encodeURIComponent(category)}`}
-                        className="block text-sm text-muted-foreground hover:text-primary transition-all duration-300 p-2 rounded-md hover:bg-accent"
-                      >
-                        {category}
-                      </Link>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Call to Action */}
-              <Card className="bg-primary/5 border-primary/20 transition-all duration-300 hover:shadow-md hover:border-primary/30">
-                <CardContent className="pt-6">
-                  <h4 className="font-semibold mb-2">هل استفدت من هذا المقال؟</h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    شاركنا مقالاً أو خبراً مهماً في عالم الذكاء الاصطناعي
-                  </p>
-                  <Button className="w-full transition-all duration-300 hover:scale-105" asChild>
-                    <Link href="/submit">
-                      اقترح خبر جديد
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
+
+            {/* Newsletter Signup */}
+            <div className="bg-primary/5 rounded-lg p-6 space-y-4">
+              <h3 className="font-semibold">اشترك في النشرة</h3>
+              <p className="text-sm text-muted-foreground">
+                احصل على آخر أخبار الذكاء الاصطناعي أسبوعياً
+              </p>
+              <Button size="sm" className="w-full">
+                اشترك الآن
+              </Button>
+            </div>
+
+            {/* Ad Space */}
+            <div className="bg-muted/20 rounded-lg p-6 text-center space-y-2">
+              <p className="text-xs text-muted-foreground">إعلان</p>
+              <div className="h-40 bg-muted/50 rounded flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">مساحة إعلانية</p>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

@@ -50,7 +50,7 @@ export function ProductRow({ product: initialProduct }: ProductRowProps) {
             <div className="absolute -top-1 -right-1">
               <QuickLogoUpload
                 productId={product.id}
-                productName={product.arabic_name || product.codename}
+                productName={product.codename}
                 currentLogoSrc={product.logo_src}
                 onLogoUpdated={handleLogoUpdated}
               />
@@ -58,11 +58,11 @@ export function ProductRow({ product: initialProduct }: ProductRowProps) {
           </div>
           <div>
             <p className="font-medium">
-              {product.arabic_name || product.codename}
+              {product.codename}
             </p>
             {product.arabic_name && (
               <p className="text-sm text-muted-foreground">
-                {product.codename}
+                {product.arabic_name}
               </p>
             )}
           </div>

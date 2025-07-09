@@ -16,20 +16,27 @@ export function DirectorySearch() {
   let [isPending, startTransition] = useTransition()
 
   let handleSearch = (term: string) => {
-    let params = new URLSearchParams(window.location.search)
     if (term) {
-      params.set("search", term)
-    } else {
-      params.delete("search")
+      startTransition(() => {
+        router.push(`/search?q=${encodeURIComponent(term)}`)
+      })
     }
-    params.delete("page")
-    startTransition(() => {
-      router.replace(`${pathname}?${params.toString()}`)
-    })
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleSearch(e.target.value)
+    const value = e.target.value
+    if (value.length >= 2) {
+      handleSearch(value)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = (e.target as HTMLInputElement).value
+      if (value.trim()) {
+        handleSearch(value.trim())
+      }
+    }
   }
 
   return (
@@ -40,7 +47,8 @@ export function DirectorySearch() {
         className={cn("relative pr-10 pl-12 shadow-sm md:py-5 w-full")}
         tabIndex={0}
         onChange={handleInputChange}
-        placeholder="ابحث في جميع الأدوات"
+        onKeyPress={handleKeyPress}
+        placeholder="ابحث في الأدوات والأخبار والدروس"
         spellCheck={false}
         enterKeyHint="go"
       >

@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FadeIn } from "@/components/cult/fade-in"
 import { DirectorySearch } from "@/components/directory-search"
-import { Hero } from "@/components/hero"
+import { NewsletterHero } from "@/components/newsletter-hero"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ErrorBoundaryWrapper } from "@/components/error-boundary"
 
 import {
   EmptyFeaturedGrid,
@@ -19,6 +20,7 @@ import { NavSidebar } from "../components/nav"
 import { AdaptiveLayout } from "@/components/adaptive-layout"
 import { getCachedFilters } from "./actions/cached_actions"
 import { getProducts } from "./actions/product"
+import { getProductsWithRatings } from "./actions/reviews"
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -54,7 +56,7 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
   )
   
   // Get popular tools (high view count)
-  const popularTools = data
+  const popularToolsBase = data
     .sort((a: any, b: any) => (b.view_count || 0) - (a.view_count || 0))
     .slice(0, 6)
   
@@ -67,6 +69,27 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
     })
     .slice(0, 4)
 
+  // Get ratings for popular tools (with error handling)
+  let ratings: any[] = []
+  try {
+    if (popularToolsBase.length > 0) {
+      ratings = await getProductsWithRatings(popularToolsBase.map((tool: any) => tool.id))
+    }
+  } catch (error) {
+    console.error('Error fetching ratings:', error)
+    ratings = []
+  }
+  
+  // Merge popular tools with their ratings
+  const popularTools = popularToolsBase.map((tool: any) => {
+    const rating = ratings.find(r => r.productId === tool.id)
+    return {
+      ...tool,
+      averageRating: rating?.averageRating || 0,
+      reviewCount: rating?.totalReviews || 0
+    }
+  })
+
   return (
     <>
       <NavSidebar
@@ -77,11 +100,15 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
 
       <AdaptiveLayout className="py-6">
         <FadeIn>
-          {/* Hero Section */}
-          <div className="pb-8 pt-8">
-            <Hero>
-              <DirectorySearch />
-            </Hero>
+          {/* Newsletter Hero Section */}
+          <div className="pb-12 pt-8">
+            <ErrorBoundaryWrapper>
+              <NewsletterHero>
+                <div className="mt-6 mb-4">
+                  <DirectorySearch />
+                </div>
+              </NewsletterHero>
+            </ErrorBoundaryWrapper>
           </div>
           
           {/* Three Main Sections */}
@@ -193,11 +220,13 @@ async function Page({ searchParams }: { searchParams: { search?: string } }) {
             </div>
             
             <div className="bg-white dark:bg-[#1E1E1E] rounded-[2rem] p-4 shadow-[0_0_0_1px_rgba(0,0,0,0.1)_inset,0_0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_-0.5px_0.5px_rgba(0,0,0,0.05)_inset,0_1px_2px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_0.5px_rgba(255,255,255,0.06)_inset,0_0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_-0.5px_0.5px_rgba(255,255,255,0.1)_inset,0_0.5px_1px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.4)]">
-              {popularTools.length > 0 ? (
-                <FeaturedGrid featuredData={popularTools} />
-              ) : (
-                <EmptyFeaturedGrid />
-              )}
+              <ErrorBoundaryWrapper>
+                {popularTools.length > 0 ? (
+                  <FeaturedGrid featuredData={popularTools} />
+                ) : (
+                  <EmptyFeaturedGrid />
+                )}
+              </ErrorBoundaryWrapper>
             </div>
           </div>
           
